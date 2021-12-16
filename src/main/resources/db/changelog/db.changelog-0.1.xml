@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+
+    <changeSet id="1639657066568-1" author="waqasakram">
+
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="customers"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="customers">
+            <column autoIncrement="true" name="id" type="INT UNSIGNED">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_customers"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_orders" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1639657066568-2" author="waqasakram">
+
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="delivery_details"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="delivery_details">
+            <column autoIncrement="true" name="delivery_id" type="INT UNSIGNED">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_delivery_details"/>
+            </column>
+            <column name="customer_type" type="VARCHAR(255)"/>
+            <column name="delivery_status" type="VARCHAR(255)"/>
+            <column name="expected_delivery_time" type="TIMESTAMP"/>
+            <column name="current_distance_from_destination_in_meters" type="INT UNSIGNED"/>
+            <column name="time_to_reach_destination" type="TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1639657066568-3" author="waqasakram">
+
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="tickets"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="ticket">
+            <column autoIncrement="true" name="id" type="INT UNSIGNED">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_ticket"/>
+            </column>
+
+            <column name="delivery_db_id" type="INT UNSIGNED">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="priority" type="SMALLINT UNSIGNED" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+        <addForeignKeyConstraint constraintName="fk_delivery_db_id" referencedTableName="delivery_details"
+                                 referencedColumnNames="delivery_id" baseTableName="ticket"
+                                 baseColumnNames="delivery_db_id"/>
+
+    </changeSet>
+
+</databaseChangeLog>
