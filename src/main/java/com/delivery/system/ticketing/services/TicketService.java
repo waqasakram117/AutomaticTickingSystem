@@ -30,6 +30,11 @@ public class TicketService {
 		repo.updateTicketPriority(deliveryDbId, priority);
 	}
 
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void updateTicketLevel(Long deliveryDbId) {
+		repo.updateTicket(deliveryDbId);
+	}
+
 	public List<Ticket> getPriorityTickets() {
 		return repo.getPriorityTickets();
 	}

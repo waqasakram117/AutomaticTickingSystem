@@ -1,7 +1,7 @@
 package com.delivery.system.ticketing.services;
 
 import com.delivery.system.exceptions.NotFoundException;
-import com.delivery.system.ticketing.entities.DeliveryDetails;
+import com.delivery.system.ticketing.entities.Delivery;
 import com.delivery.system.ticketing.enums.DeliveryStatus;
 import com.delivery.system.ticketing.mappers.DeliveryMapper;
 import com.delivery.system.ticketing.pojos.external.NewDeliveryDto;
@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class DeliveryService {
@@ -32,35 +33,46 @@ public class DeliveryService {
 	public void updateDelivery(UpdateDeliveryDto dto) {
 		var delivery = getDeliveryById(dto.getDeliveryId());
 		updateDeliveryStatus(delivery, dto.getDeliveryStatus());
-		updateTicket(dto.getFoodPreparationTime());
-		updateTimeToReachDestination(delivery, dto.getTimeToReachDestination());
+		analysisEstimationTime(delivery, dto);
 
 		repo.saveAndFlush(delivery);
 	}
 
-	private void updateTicket(Integer foodPreparationTime) {
-		if (foodPreparationTime != null) {
+	public List<Delivery> getAllDeliveries() {
+		return repo.findAll();
+	}
+
+	private void analysisEstimationTime(Delivery delivery, UpdateDeliveryDto dto) {
+		LocalDateTime reachingTime = dto.getTimeToReachDestination();
+
+		if (dto.getTimeToReachDestination() != null) {
+			BeanValidator.validate(reachingTime, ValidAheadTime.class);
+			delivery.setTimeToReachDestination(reachingTime);
+		}
+
+		if (dto.getFoodPreparationTime() != null && reachingTime != null) {
 			// TODO update ticket
+		} else if (dto.getFoodPreparationTime() != null) {
+			// TODO GET reach destination time from delivery and look at ticket
+		} else if (reachingTime != null) {
+			// TODO GET assume food prepared but late in delievery
 		}
 	}
 
-	private void updateTimeToReachDestination(DeliveryDetails delivery, LocalDateTime time) {
-		if (time != null) {
-			BeanValidator.validate(time, ValidAheadTime.class);
-			delivery.setTimeToReachDestination(time);
-
-			// TODO update ticket
+	private void scheduleTicket(LocalDateTime expectedTime, LocalDateTime reachTime, Long foodPreparationTime) {
+		if (expectedTime.isBefore(reachTime.plusSeconds(foodPreparationTime))) {
+			// TODO create or update tickets
 		}
 	}
 
-	private void updateDeliveryStatus(DeliveryDetails delivery, DeliveryStatus status) {
+	private void updateDeliveryStatus(Delivery delivery, DeliveryStatus status) {
 		if (status != null) {
 			BeanValidator.validate(status, ValidDeliveryStatus.class);
 			delivery.setDeliveryStatus(status);
 		}
 	}
 
-	private DeliveryDetails getDeliveryById(Long deliveryId) {
+	public Delivery getDeliveryById(Long deliveryId) {
 
 		return repo.findById(deliveryId).orElseThrow(() -> new NotFoundException("Delivery doesn't exist against Id: " + deliveryId));
 	}
