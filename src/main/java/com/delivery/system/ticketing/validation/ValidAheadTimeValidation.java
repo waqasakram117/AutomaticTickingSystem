@@ -1,4 +1,4 @@
-package com.delivery.system.validation;
+package com.delivery.system.ticketing.validation;
 
 import com.delivery.system.utils.UtcDateTimeUtils;
 

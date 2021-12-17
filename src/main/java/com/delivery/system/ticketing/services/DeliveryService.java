@@ -7,9 +7,9 @@ import com.delivery.system.ticketing.mappers.DeliveryMapper;
 import com.delivery.system.ticketing.pojos.external.NewDeliveryDto;
 import com.delivery.system.ticketing.pojos.external.UpdateDeliveryDto;
 import com.delivery.system.ticketing.repos.DeliveryRepo;
+import com.delivery.system.ticketing.validation.ValidAheadTime;
+import com.delivery.system.ticketing.validation.ValidDeliveryStatus;
 import com.delivery.system.utils.BeanValidator;
-import com.delivery.system.validation.ValidAheadTime;
-import com.delivery.system.validation.ValidDeliveryStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +26,7 @@ public class DeliveryService {
 	}
 
 	public void addNewDelivery(NewDeliveryDto dto) {
-		repo.save(DeliveryMapper.map(dto));
+		repo.saveAndFlush(DeliveryMapper.map(dto));
 	}
 
 	public void updateDelivery(UpdateDeliveryDto dto) {

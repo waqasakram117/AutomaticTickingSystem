@@ -1,8 +1,8 @@
 package com.delivery.system.ticketing.pojos.external;
 
-import com.delivery.system.validation.ValidAheadTime;
-import com.delivery.system.validation.ValidCustomerType;
-import com.delivery.system.validation.ValidDeliveryStatus;
+import com.delivery.system.ticketing.validation.ValidAheadTime;
+import com.delivery.system.ticketing.validation.ValidCustomerType;
+import com.delivery.system.ticketing.validation.ValidDeliveryStatus;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;

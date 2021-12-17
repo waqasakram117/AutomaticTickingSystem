@@ -10,8 +10,8 @@ public enum TicketPriority {
 
 	HIGH(1),
 	MEDIUM(2),
-	LOW(0),
-	INVALID(-1);
+	LOW(3),
+	INVALID(0);
 
 	private static final Map<Short, TicketPriority> ticketPriorityByValue =
 			Stream.of(values()).filter(c -> c != INVALID).collect(toUnmodifiableMap(c -> c.value, identity()));

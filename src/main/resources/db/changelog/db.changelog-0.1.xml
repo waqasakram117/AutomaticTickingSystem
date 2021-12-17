@@ -34,7 +34,7 @@
             </not>
         </preConditions>
 
-        <createTable tableName="ticket">
+        <createTable tableName="tickets">
             <column autoIncrement="true" name="id" type="INT UNSIGNED">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_ticket"/>
             </column>
@@ -55,7 +55,7 @@
 
         </createTable>
         <addForeignKeyConstraint constraintName="fk_delivery_db_id" referencedTableName="delivery_details"
-                                 referencedColumnNames="delivery_id" baseTableName="ticket"
+                                 referencedColumnNames="delivery_id" baseTableName="tickets"
                                  baseColumnNames="delivery_db_id"/>
 
     </changeSet>

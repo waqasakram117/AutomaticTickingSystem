@@ -1,23 +1,23 @@
-package com.delivery.system.validation;
+package com.delivery.system.ticketing.validation;
 
-import com.delivery.system.ticketing.enums.CustomerType;
+import com.delivery.system.ticketing.enums.DeliveryStatus;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class CustomerTypeValidation implements ConstraintValidator<ValidCustomerType, String> {
+public class DeliveryStatusValidation implements ConstraintValidator<ValidDeliveryStatus, String> {
 
 	private String violationMsg;
 
 	@Override
-	public void initialize(ValidCustomerType constraintAnnotation) {
+	public void initialize(ValidDeliveryStatus constraintAnnotation) {
 		violationMsg = constraintAnnotation.message();
 	}
 
 	@Override
-	public boolean isValid(String type, ConstraintValidatorContext context) {
+	public boolean isValid(String status, ConstraintValidatorContext context) {
 
-		if (CustomerType.getByType(type) == CustomerType.INVALID) {
+		if (DeliveryStatus.getByStatus(status) == DeliveryStatus.INVALID) {
 			updateContextValidator(context, violationMsg);
 
 			return false;

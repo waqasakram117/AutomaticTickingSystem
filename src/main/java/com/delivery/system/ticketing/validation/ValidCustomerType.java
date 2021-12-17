@@ -1,4 +1,4 @@
-package com.delivery.system.validation;
+package com.delivery.system.ticketing.validation;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.PARAMETER;
@@ -11,10 +11,10 @@ import java.lang.annotation.Target;
 
 @Target({FIELD, PARAMETER})
 @Retention(RUNTIME)
-@Constraint(validatedBy = {ValidAheadTimeValidation.class})
-public @interface ValidAheadTime {
+@Constraint(validatedBy = {CustomerTypeValidation.class})
+public @interface ValidCustomerType {
 
-	String message() default "Requested time has been passed. Give future valid time";
+	String message() default "Invalid Customer Type. Customer Type must be (VIP, Loyal, New)";
 
 	Class<?>[] groups() default {};
 

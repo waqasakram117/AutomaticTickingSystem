@@ -16,12 +16,12 @@ import javax.persistence.Table;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "tickets")
+@Table(name = "TICKETS")
 public class Ticket {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id", nullable = false, columnDefinition = "INT UNSIGNED")
+	@Column(name = "id", columnDefinition = "INT UNSIGNED", nullable = false)
 	private Long id;
 
 	@Column(name = "delivery_db_id", columnDefinition = "INT UNSIGNED", nullable = false, updatable = false)

@@ -37,7 +37,7 @@ public class DeliveryDetails {
 
 	@Positive
 	@Column(name = "current_distance_from_destination_in_meters")
-	private Integer distanceFromDestination;
+	private Integer destinationDistance;
 
 	@Column(name = "time_to_reach_destination")
 	private LocalDateTime timeToReachDestination;
@@ -74,12 +74,12 @@ public class DeliveryDetails {
 		this.expectedDeliveryTime = expectedDeliveryTime;
 	}
 
-	public Integer getDistanceFromDestination() {
-		return distanceFromDestination;
+	public Integer getDestinationDistance() {
+		return destinationDistance;
 	}
 
-	public void setDistanceFromDestination(Integer distanceFromDestination) {
-		this.distanceFromDestination = distanceFromDestination;
+	public void setDestinationDistance(Integer distanceFromDestination) {
+		this.destinationDistance = distanceFromDestination;
 	}
 
 	public LocalDateTime getTimeToReachDestination() {

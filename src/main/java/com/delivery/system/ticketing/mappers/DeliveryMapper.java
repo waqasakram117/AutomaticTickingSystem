@@ -13,7 +13,7 @@ public final class DeliveryMapper {
 		var delivery = new DeliveryDetails();
 		delivery.setDeliveryStatus(DeliveryStatus.getByStatus(dto.getDeliveryStatus()));
 		delivery.setCustomerType(CustomerType.getByType(dto.getCustomerType()));
-		delivery.setDistanceFromDestination(dto.getDestinationDistance());
+		delivery.setDestinationDistance(dto.getDestinationDistance());
 		delivery.setTimeToReachDestination(dto.getTimeToReachDestination());
 		delivery.setExpectedDeliveryTime(dto.getExpectedDeliveryTime());
 
