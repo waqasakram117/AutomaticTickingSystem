@@ -1,8 +1,8 @@
 package com.delivery.system.ticketing.services;
 
-import com.delivery.system.ticketing.entities.Ticket;
 import com.delivery.system.ticketing.enums.TicketPriority;
 import com.delivery.system.ticketing.mappers.TicketMapper;
+import com.delivery.system.ticketing.pojos.internal.RegisteredTicketData;
 import com.delivery.system.ticketing.repos.TicketRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,23 +24,26 @@ public class TicketService {
 		this.repo = repo;
 	}
 
-	public void createTicket(Long deliveryDbId, TicketPriority priority) {
-		repo.save(TicketMapper.map(deliveryDbId, priority));
-	}
-
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void updateTicketPriority(Long deliveryDbId, TicketPriority priority) {
 		repo.updateTicketPriority(deliveryDbId, priority);
-		log.info("Ticket Priority has been updated: " + deliveryDbId);
+		log.info("Ticket Priority is updated: {}", deliveryDbId);
 	}
 
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void updateTicketLevel(Long deliveryDbId) {
-		repo.updateTicket(deliveryDbId);
-		log.info("Ticket has been updated: " + deliveryDbId);
-	}
+	public List<RegisteredTicketData> getPriorityTickets() {
 
-	public List<Ticket> getPriorityTickets() {
 		return repo.getPriorityTickets();
+	}
+
+	public void createTicketIfNotExist(Long deliveryId, TicketPriority priority) {
+		var exists = repo.existsById(deliveryId);
+		if (!exists) {
+			createTicket(deliveryId, priority);
+			log.info("New Ticket is generated ID: {} ", deliveryId);
+		}
+	}
+
+	private void createTicket(Long deliveryDbId, TicketPriority priority) {
+		repo.save(TicketMapper.map(deliveryDbId, priority));
 	}
 }

@@ -20,6 +20,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    implementation 'org.mariadb.jdbc:mariadb-java-client:2.7.4'
     runtimeOnly 'com.h2database:h2'
     implementation 'org.liquibase:liquibase-core:4.6.2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

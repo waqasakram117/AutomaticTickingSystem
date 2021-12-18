@@ -2,7 +2,10 @@ package com.delivery.system.ticketing.services;
 
 import com.delivery.system.ticketing.entities.Delivery;
 import com.delivery.system.ticketing.enums.DeliveryStatus;
+import com.delivery.system.ticketing.enums.TicketPriority;
 import com.delivery.system.utils.UtcDateTimeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,8 +14,10 @@ import java.time.LocalDateTime;
 @Service
 public class TicketPriorityScheduler {
 
+	private static final Logger log = LoggerFactory.getLogger(TicketPriorityScheduler.class);
 	private final TicketService ticketService;
 	private final DeliveryService deliveryService;
+
 
 	@Autowired
 	public TicketPriorityScheduler(TicketService ticketService, DeliveryService deliveryService) {
@@ -21,28 +26,19 @@ public class TicketPriorityScheduler {
 	}
 
 	public void prioritiesTickets(LocalDateTime from, LocalDateTime to) {
-//		var tickets = ticketService.getPriorityTickets();
-//		for (Ticket ticket : tickets) {
-//			var delivery = deliveryService.getDeliveryById(ticket.getDeliveryDbId());
-//			scheduleTicketForPendingDelivery(delivery);
-//		}
-
-		System.out.println("Last sync time " + from);
-		System.out.println("To sync time " + to);
 		var deliveries = deliveryService.getAllDeliveries(from, to);
 
+		System.out.printf("Now: %s Last: %s Size: %d %n", from, to, deliveries.size());
 		for (Delivery delivery : deliveries) {
-			System.out.printf("ID: %d, time: %s priority: %s %n", delivery.getId(),
-					delivery.getLastModified(),
-					delivery.getDeliveryStatus().name()
-			);
+			prioritiesTicketForPendingDelivery(delivery);
 		}
 
 	}
 
-	private void scheduleTicketForPendingDelivery(Delivery delivery) {
+	private void prioritiesTicketForPendingDelivery(Delivery delivery) {
 		if (!isOrderDelivered(delivery) && isExpectedDeliveryTimePassed(delivery.getExpectedDeliveryTime())) {
-			ticketService.updateTicketLevel(delivery.getId());
+			ticketService.updateTicketPriority(delivery.getId(), TicketPriority.HIGH);
+			log.info("Delivery: {} priority is changed", delivery.getId());
 		}
 	}
 

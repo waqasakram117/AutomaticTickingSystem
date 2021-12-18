@@ -1,24 +1,31 @@
 package com.delivery.system.ticketing.pojos.external;
 
-import com.delivery.system.ticketing.enums.DeliveryStatus;
+import com.delivery.system.ticketing.validation.ValidAheadTime;
+import com.delivery.system.ticketing.validation.ValidDeliveryStatus;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.time.LocalDateTime;
 
 public class UpdateDeliveryDto {
 
+	private static final String FOOD_PREPARATION_VALIDATION_ERROR = "To prepare food it must take logical and reasonable time in minutes";
+
 	@NotNull(message = "Delivery Id can't be null")
+	@Positive(message = "Invalid Delivery Id")
 	private Long deliveryId;
 
+	@ValidAheadTime(isNullAllowed = true)
 	private LocalDateTime timeToReachDestination;
 
-	@Min(value = 1, message = "To prepare food it must take logical and reasonable time in seconds")
-	@Max(value = Integer.MAX_VALUE, message = "To prepare food it must take logical and reasonable time in seconds")
+	@Min(value = 0, message = FOOD_PREPARATION_VALIDATION_ERROR)
+	@Max(value = Integer.MAX_VALUE, message = FOOD_PREPARATION_VALIDATION_ERROR)
 	private Integer foodPreparationTime;
 
-	private DeliveryStatus deliveryStatus;
+	@ValidDeliveryStatus(isNullAllowed = true)
+	private String deliveryStatus;
 
 	public Long getDeliveryId() {
 		return deliveryId;
@@ -44,11 +51,11 @@ public class UpdateDeliveryDto {
 		this.foodPreparationTime = foodPreparationTime;
 	}
 
-	public DeliveryStatus getDeliveryStatus() {
+	public String getDeliveryStatus() {
 		return deliveryStatus;
 	}
 
-	public void setDeliveryStatus(DeliveryStatus deliveryStatus) {
+	public void setDeliveryStatus(String deliveryStatus) {
 		this.deliveryStatus = deliveryStatus;
 	}
 }

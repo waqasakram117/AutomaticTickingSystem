@@ -9,16 +9,20 @@ import java.time.LocalDateTime;
 public class ValidAheadTimeValidation implements ConstraintValidator<ValidAheadTime, LocalDateTime> {
 
 	private String violationMsg;
+	private boolean isNullAllowed;
 
 	@Override
 	public void initialize(ValidAheadTime constraintAnnotation) {
 		violationMsg = constraintAnnotation.message();
+		isNullAllowed = constraintAnnotation.isNullAllowed();
 	}
 
 	@Override
 	public boolean isValid(LocalDateTime time, ConstraintValidatorContext context) {
 
-		if (UtcDateTimeUtils.utcTimeNow().isAfter(time)) {
+		if (isNullAllowed && time == null) return true;
+
+		if (time == null || UtcDateTimeUtils.utcTimeNow().isAfter(time)) {
 			updateContextValidator(context, violationMsg);
 
 			return false;

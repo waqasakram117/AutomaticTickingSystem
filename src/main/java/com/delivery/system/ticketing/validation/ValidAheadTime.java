@@ -16,6 +16,8 @@ public @interface ValidAheadTime {
 
 	String message() default "Requested time has been passed. Give future valid time";
 
+	boolean isNullAllowed() default false;
+
 	Class<?>[] groups() default {};
 
 	Class<? extends Payload>[] payload() default {};

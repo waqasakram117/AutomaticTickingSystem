@@ -1,15 +1,19 @@
 package com.delivery.system.ticketing.services;
 
+import static com.delivery.system.ticketing.mappers.DeliveryMapper.mapToRegisteredData;
+import static com.delivery.system.ticketing.mappers.TicketPriorityMapper.map;
+
 import com.delivery.system.exceptions.NotFoundException;
 import com.delivery.system.ticketing.entities.Delivery;
 import com.delivery.system.ticketing.enums.DeliveryStatus;
 import com.delivery.system.ticketing.mappers.DeliveryMapper;
 import com.delivery.system.ticketing.pojos.external.NewDeliveryDto;
 import com.delivery.system.ticketing.pojos.external.UpdateDeliveryDto;
+import com.delivery.system.ticketing.pojos.internal.RegisteredDeliveryData;
 import com.delivery.system.ticketing.repos.DeliveryRepo;
-import com.delivery.system.ticketing.validation.ValidAheadTime;
-import com.delivery.system.ticketing.validation.ValidDeliveryStatus;
-import com.delivery.system.utils.BeanValidator;
+import com.delivery.system.utils.UtcDateTimeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,61 +23,75 @@ import java.util.List;
 @Service
 public class DeliveryService {
 
-	private final DeliveryRepo repo;
+	private static final Logger log = LoggerFactory.getLogger(DeliveryService.class);
+	private final DeliveryRepo deliveryRepo;
+	private final TicketService ticketService;
+
 
 	@Autowired
-	public DeliveryService(DeliveryRepo repo) {
-		this.repo = repo;
+	public DeliveryService(DeliveryRepo deliveryRepo, TicketService ticketService) {
+		this.deliveryRepo = deliveryRepo;
+		this.ticketService = ticketService;
 	}
 
-	public void addNewDelivery(NewDeliveryDto dto) {
-		repo.saveAndFlush(DeliveryMapper.map(dto));
+	public RegisteredDeliveryData addNewDelivery(NewDeliveryDto dto) {
+		var delivery = deliveryRepo.saveAndFlush(DeliveryMapper.map(dto));
+		log.info("New delivery is created. ID: {}", delivery);
+		scheduleTicketForLateDelivery(delivery, delivery.getTimeToReachDestination(), dto.getFoodPreparationTime());
+
+		return mapToRegisteredData(delivery);
 	}
 
-	public void updateDelivery(UpdateDeliveryDto dto) {
+	public RegisteredDeliveryData updateDelivery(UpdateDeliveryDto dto) {
 		var delivery = getDeliveryById(dto.getDeliveryId());
+		delivery.setLastModified(UtcDateTimeUtils.utcTimeNow());
 		updateDeliveryStatus(delivery, dto.getDeliveryStatus());
 		analysisEstimationTime(delivery, dto);
 
-		repo.saveAndFlush(delivery);
+		var updatedDelivery = deliveryRepo.saveAndFlush(delivery);
+		log.info("Delivery ID: {} is updated", delivery.getId());
+
+		return mapToRegisteredData(delivery);
 	}
 
-	public List<Delivery> getAllDeliveries(LocalDateTime from, LocalDateTime to) {
-		return repo.findAllWithLastModifiedAfter(from, to);
+	List<Delivery> getAllDeliveries(LocalDateTime from, LocalDateTime to) {
+		return deliveryRepo.findAllWithLastModifiedAfter(from, to);
 	}
 
 	private void analysisEstimationTime(Delivery delivery, UpdateDeliveryDto dto) {
 		LocalDateTime reachingTime = dto.getTimeToReachDestination();
+		var foodPrepar = dto.getFoodPreparationTime();
+		updateValidReachingTime(delivery, reachingTime);
 
+		if (foodPrepar != null && reachingTime != null) {
+			scheduleTicketForLateDelivery(delivery, reachingTime, foodPrepar);
+		} else if (foodPrepar != null) {
+			scheduleTicketForLateDelivery(delivery, delivery.getTimeToReachDestination(), foodPrepar);
+		} else if (reachingTime != null) {
+			scheduleTicketForLateDelivery(delivery, reachingTime, 0);
+		}
+	}
+
+	private void updateValidReachingTime(Delivery delivery, LocalDateTime reachingTime) {
 		if (reachingTime != null) {
-			BeanValidator.validate(reachingTime, ValidAheadTime.class);
 			delivery.setTimeToReachDestination(reachingTime);
 		}
+	}
 
-		if (dto.getFoodPreparationTime() != null && reachingTime != null) {
-			// TODO update ticket
-		} else if (dto.getFoodPreparationTime() != null) {
-			// TODO GET reach destination time from delivery and look at ticket
-		} else if (reachingTime != null) {
-			// TODO GET assume food prepared but late in delievery
+	private void scheduleTicketForLateDelivery(Delivery delivery, LocalDateTime reachTime, int foodPreparationTime) {
+		if (delivery.getExpectedDeliveryTime().isBefore(reachTime.plusMinutes(foodPreparationTime))) {
+			ticketService.createTicketIfNotExist(delivery.getId(), map(delivery.getCustomerType()));
 		}
 	}
 
-	private void scheduleTicket(LocalDateTime expectedTime, LocalDateTime reachTime, Long foodPreparationTime) {
-		if (expectedTime.isBefore(reachTime.plusSeconds(foodPreparationTime))) {
-			// TODO create or update tickets
-		}
-	}
-
-	private void updateDeliveryStatus(Delivery delivery, DeliveryStatus status) {
+	private void updateDeliveryStatus(Delivery delivery, String status) {
 		if (status != null) {
-			BeanValidator.validate(status, ValidDeliveryStatus.class);
-			delivery.setDeliveryStatus(status);
+			delivery.setDeliveryStatus(DeliveryStatus.getByStatus(status));
 		}
 	}
 
 	public Delivery getDeliveryById(Long deliveryId) {
 
-		return repo.findById(deliveryId).orElseThrow(() -> new NotFoundException("Delivery doesn't exist against Id: " + deliveryId));
+		return deliveryRepo.findById(deliveryId).orElseThrow(() -> new NotFoundException("Delivery doesn't exist against Id: " + deliveryId));
 	}
 }

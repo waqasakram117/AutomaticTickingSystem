@@ -16,6 +16,8 @@ public @interface ValidDeliveryStatus {
 
 	String message() default "Invalid Delivery Status. Status must be (Order received, Order Preparing, Order Pickedup, Order Delivered)";
 
+	boolean isNullAllowed() default false;
+
 	Class<?>[] groups() default {};
 
 	Class<? extends Payload>[] payload() default {};

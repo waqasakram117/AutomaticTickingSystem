@@ -23,9 +23,11 @@ public class TicketPrioritySchedulerConfig {
 	}
 
 	@Scheduled(fixedDelayString = "${ticket.priority-interval}", timeUnit = TimeUnit.SECONDS)
-	public void scheduleFixedDelayTask() {
+	public void scheduleTicketPrioritizingTask() {
 		var now = UtcDateTimeUtils.utcTimeNow();
+
 		scheduler.prioritiesTickets(lastSchedulerTime, now);
 		lastSchedulerTime = now;
 	}
+
 }

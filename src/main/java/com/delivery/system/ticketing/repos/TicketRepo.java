@@ -2,6 +2,7 @@ package com.delivery.system.ticketing.repos;
 
 import com.delivery.system.ticketing.entities.Ticket;
 import com.delivery.system.ticketing.enums.TicketPriority;
+import com.delivery.system.ticketing.pojos.internal.RegisteredTicketData;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -24,14 +25,7 @@ public interface TicketRepo extends JpaRepository<Ticket, Long> {
 	@Transactional(propagation = Propagation.MANDATORY)
 	void updateTicketPriority(@Param("deliveryDbId") Long deliveryDbId, @Param("priority") TicketPriority priority);
 
-	@Modifying
-	@Query("update Ticket ticket " +
-			" set ticket.lastModified= current_timestamp " +
-			" where ticket.deliveryDbId =:deliveryDbId ")
-	@Transactional(propagation = Propagation.MANDATORY)
-	void updateTicket(@Param("deliveryDbId") Long deliveryDbId);
-
 	@Query("select ticket from Ticket ticket order by ticket.priority asc, ticket.lastModified desc")
-	List<Ticket> getPriorityTickets();
+	List<RegisteredTicketData> getPriorityTickets();
 
 }

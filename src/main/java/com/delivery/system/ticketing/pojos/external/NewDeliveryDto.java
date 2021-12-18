@@ -27,7 +27,7 @@ public class NewDeliveryDto {
 	@Max(value = 5, message = "Rider Maximum Rating can be 5")
 	private int riderRating;
 
-	@Positive(message = "To prepare food it must take logical and reasonable time in seconds")
+	@Positive(message = "To prepare food it must take logical and reasonable time in minutes")
 	private int foodPreparationTime;
 
 	@ValidAheadTime

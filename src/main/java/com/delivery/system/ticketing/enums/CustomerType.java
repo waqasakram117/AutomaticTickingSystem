@@ -10,7 +10,7 @@ public enum CustomerType {
 
 	VIP("VIP"),
 	LOYAL("Loyal"),
-	NEW("New)"),
+	NEW("New"),
 	INVALID("Invalid");
 
 	private static final Map<String, CustomerType> customerByTypes =
