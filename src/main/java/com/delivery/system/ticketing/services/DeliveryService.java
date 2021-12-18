@@ -38,14 +38,14 @@ public class DeliveryService {
 		repo.saveAndFlush(delivery);
 	}
 
-	public List<Delivery> getAllDeliveries() {
-		return repo.findAll();
+	public List<Delivery> getAllDeliveries(LocalDateTime from, LocalDateTime to) {
+		return repo.findAllWithLastModifiedAfter(from, to);
 	}
 
 	private void analysisEstimationTime(Delivery delivery, UpdateDeliveryDto dto) {
 		LocalDateTime reachingTime = dto.getTimeToReachDestination();
 
-		if (dto.getTimeToReachDestination() != null) {
+		if (reachingTime != null) {
 			BeanValidator.validate(reachingTime, ValidAheadTime.class);
 			delivery.setTimeToReachDestination(reachingTime);
 		}

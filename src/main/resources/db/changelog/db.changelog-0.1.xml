@@ -7,7 +7,6 @@
         objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
 
     <changeSet id="1639657066568-1" author="waqasakram">
-
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="delivery_details"/>
@@ -23,6 +22,10 @@
             <column name="expected_delivery_time" type="TIMESTAMP"/>
             <column name="current_distance_from_destination_in_meters" type="INT UNSIGNED"/>
             <column name="time_to_reach_destination" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified" type="TIMESTAMP"/>
         </createTable>
     </changeSet>
 
@@ -38,19 +41,15 @@
             <column autoIncrement="true" name="id" type="INT UNSIGNED">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_ticket"/>
             </column>
-
             <column name="delivery_db_id" type="INT UNSIGNED">
                 <constraints nullable="false"/>
             </column>
-
             <column name="priority" type="SMALLINT UNSIGNED" defaultValue="0">
                 <constraints nullable="false"/>
             </column>
-
             <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-
             <column name="last_modified" type="TIMESTAMP"/>
 
         </createTable>

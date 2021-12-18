@@ -40,14 +40,12 @@ public class Ticket {
 	@PrePersist
 	protected void onCreate() {
 		var now = UtcDateTimeUtils.utcTimeNow();
-
 		setCreatedAt(now);
 	}
 
 	@PreUpdate
 	protected void onUpdate() {
 		var now = UtcDateTimeUtils.utcTimeNow();
-
 		setLastModified(now);
 	}
 

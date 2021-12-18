@@ -28,7 +28,7 @@ public class DeliveryController {
 	}
 
 	@PutMapping()
-	public void updateNewDelivery(UpdateDeliveryDto dto) {
+	public void updateDelivery(UpdateDeliveryDto dto) {
 		service.updateDelivery(dto);
 	}
 
