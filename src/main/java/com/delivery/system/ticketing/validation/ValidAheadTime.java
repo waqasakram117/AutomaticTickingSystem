@@ -14,7 +14,9 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = {ValidAheadTimeValidation.class})
 public @interface ValidAheadTime {
 
-	String message() default "Requested time has been passed. Give future valid time";
+	String ERROR_MESSAGE = "Requested time has been passed. Give future valid time";
+
+	String message() default ERROR_MESSAGE;
 
 	boolean isNullAllowed() default false;
 

@@ -14,7 +14,9 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = {DeliveryStatusValidation.class})
 public @interface ValidDeliveryStatus {
 
-	String message() default "Invalid Delivery Status. Status must be (Order received, Order Preparing, Order Pickedup, Order Delivered)";
+	String ERROR_MESSAGE = "Invalid Delivery Status. Status must be (Order received, Order Preparing, Order Pickedup, Order Delivered)";
+
+	String message() default ERROR_MESSAGE;
 
 	boolean isNullAllowed() default false;
 

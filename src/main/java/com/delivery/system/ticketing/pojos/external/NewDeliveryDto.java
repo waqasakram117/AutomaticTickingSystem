@@ -6,10 +6,13 @@ import com.delivery.system.ticketing.validation.ValidDeliveryStatus;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.time.LocalDateTime;
 
 public class NewDeliveryDto {
+
+	private static final String RIDING_VALIDATION_ERROR_MSG = "Rider rating must be between 0-5";
 
 	@ValidCustomerType
 	private String customerType;
@@ -20,15 +23,17 @@ public class NewDeliveryDto {
 	@ValidAheadTime
 	private LocalDateTime expectedDeliveryTime;
 
-	@Positive
-	private int destinationDistance;
+	@Positive(message = "Destination Distance must be logical in meters")
+	private Integer destinationDistance;
 
-	@Min(value = 0, message = "Rider Minimum Rating can be 0")
-	@Max(value = 5, message = "Rider Maximum Rating can be 5")
-	private int riderRating;
+
+	@NotNull(message = RIDING_VALIDATION_ERROR_MSG)
+	@Min(value = 0, message = RIDING_VALIDATION_ERROR_MSG)
+	@Max(value = 5, message = RIDING_VALIDATION_ERROR_MSG)
+	private Integer riderRating;
 
 	@Positive(message = "To prepare food it must take logical and reasonable time in minutes")
-	private int foodPreparationTime;
+	private Integer foodPreparationTime;
 
 	@ValidAheadTime
 	private LocalDateTime timeToReachDestination;
@@ -58,27 +63,27 @@ public class NewDeliveryDto {
 		this.expectedDeliveryTime = expectedDeliveryTime;
 	}
 
-	public int getDestinationDistance() {
+	public Integer getDestinationDistance() {
 		return destinationDistance;
 	}
 
-	public void setDestinationDistance(int destinationDistance) {
+	public void setDestinationDistance(Integer destinationDistance) {
 		this.destinationDistance = destinationDistance;
 	}
 
-	public int getRiderRating() {
+	public Integer getRiderRating() {
 		return riderRating;
 	}
 
-	public void setRiderRating(int riderRating) {
+	public void setRiderRating(Integer riderRating) {
 		this.riderRating = riderRating;
 	}
 
-	public int getFoodPreparationTime() {
+	public Integer getFoodPreparationTime() {
 		return foodPreparationTime;
 	}
 
-	public void setFoodPreparationTime(int foodPreparationTime) {
+	public void setFoodPreparationTime(Integer foodPreparationTime) {
 		this.foodPreparationTime = foodPreparationTime;
 	}
 

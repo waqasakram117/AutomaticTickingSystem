@@ -22,6 +22,7 @@ public final class DeliveryMapper {
 	}
 
 	public static RegisteredDeliveryData mapToRegisteredData(Delivery delivery) {
+
 		return RegisteredDeliveryData.builder()
 				.id(delivery.getId())
 				.deliveryStatus(delivery.getDeliveryStatus())

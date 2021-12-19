@@ -14,7 +14,9 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = {CustomerTypeValidation.class})
 public @interface ValidCustomerType {
 
-	String message() default "Invalid Customer Type. Customer Type must be (VIP, Loyal, New)";
+	String ERROR_MESSAGE = "Invalid Customer Type. Customer Type must be (VIP, Loyal, New)";
+
+	String message() default ERROR_MESSAGE;
 
 	Class<?>[] groups() default {};
 

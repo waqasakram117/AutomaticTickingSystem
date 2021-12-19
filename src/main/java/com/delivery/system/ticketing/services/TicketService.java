@@ -1,12 +1,13 @@
 package com.delivery.system.ticketing.services;
 
+import com.delivery.system.ticketing.entities.Ticket;
 import com.delivery.system.ticketing.enums.TicketPriority;
-import com.delivery.system.ticketing.mappers.TicketMapper;
 import com.delivery.system.ticketing.pojos.internal.RegisteredTicketData;
 import com.delivery.system.ticketing.repos.TicketRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,9 +26,11 @@ public class TicketService {
 	}
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void updateTicketPriority(Long deliveryDbId, TicketPriority priority) {
-		repo.updateTicketPriority(deliveryDbId, priority);
+	public long updateTicketPriority(Long deliveryDbId, TicketPriority priority) {
+		var results = repo.updateTicketPriority(deliveryDbId, priority);
 		log.info("Ticket Priority is updated: {}", deliveryDbId);
+
+		return results;
 	}
 
 	public List<RegisteredTicketData> getPriorityTickets() {
@@ -35,15 +38,17 @@ public class TicketService {
 		return repo.getPriorityTickets();
 	}
 
-	public void createTicketIfNotExist(Long deliveryId, TicketPriority priority) {
-		var exists = repo.existsById(deliveryId);
-		if (!exists) {
-			createTicket(deliveryId, priority);
-			log.info("New Ticket is generated ID: {} ", deliveryId);
-		}
+	@Nullable
+	public Ticket createTicketIfNotExist(Ticket ticket) {
+
+		return repo.existsTicketByDeliveryDbId(ticket.getDeliveryDbId()) ? null :
+				createTicket(ticket);
 	}
 
-	private void createTicket(Long deliveryDbId, TicketPriority priority) {
-		repo.save(TicketMapper.map(deliveryDbId, priority));
+	private Ticket createTicket(Ticket ticket) {
+		var savedTicket = repo.save(ticket);
+		log.info("New Ticket is generated ID: {} ", savedTicket);
+
+		return savedTicket;
 	}
 }

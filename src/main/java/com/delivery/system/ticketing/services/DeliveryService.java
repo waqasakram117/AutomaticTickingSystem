@@ -1,12 +1,13 @@
 package com.delivery.system.ticketing.services;
 
 import static com.delivery.system.ticketing.mappers.DeliveryMapper.mapToRegisteredData;
-import static com.delivery.system.ticketing.mappers.TicketPriorityMapper.map;
 
 import com.delivery.system.exceptions.NotFoundException;
 import com.delivery.system.ticketing.entities.Delivery;
 import com.delivery.system.ticketing.enums.DeliveryStatus;
 import com.delivery.system.ticketing.mappers.DeliveryMapper;
+import com.delivery.system.ticketing.mappers.TicketMapper;
+import com.delivery.system.ticketing.mappers.TicketPriorityMapper;
 import com.delivery.system.ticketing.pojos.external.NewDeliveryDto;
 import com.delivery.system.ticketing.pojos.external.UpdateDeliveryDto;
 import com.delivery.system.ticketing.pojos.internal.RegisteredDeliveryData;
@@ -49,9 +50,9 @@ public class DeliveryService {
 		analysisEstimationTime(delivery, dto);
 
 		var updatedDelivery = deliveryRepo.saveAndFlush(delivery);
-		log.info("Delivery ID: {} is updated", delivery.getId());
+		log.info("Delivery ID: {} is updated", updatedDelivery.getId());
 
-		return mapToRegisteredData(delivery);
+		return mapToRegisteredData(updatedDelivery);
 	}
 
 	List<Delivery> getAllDeliveries(LocalDateTime from, LocalDateTime to) {
@@ -80,7 +81,7 @@ public class DeliveryService {
 
 	private void scheduleTicketForLateDelivery(Delivery delivery, LocalDateTime reachTime, int foodPreparationTime) {
 		if (delivery.getExpectedDeliveryTime().isBefore(reachTime.plusMinutes(foodPreparationTime))) {
-			ticketService.createTicketIfNotExist(delivery.getId(), map(delivery.getCustomerType()));
+			ticketService.createTicketIfNotExist(TicketMapper.map(delivery.getId(), TicketPriorityMapper.map(delivery.getCustomerType())));
 		}
 	}
 

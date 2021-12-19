@@ -16,6 +16,7 @@ import java.util.List;
 @Repository
 public interface TicketRepo extends JpaRepository<Ticket, Long> {
 
+	boolean existsTicketByDeliveryDbId(long deliveryId);
 
 	@Modifying
 	@Query("update Ticket ticket " +
@@ -23,7 +24,7 @@ public interface TicketRepo extends JpaRepository<Ticket, Long> {
 			" ticket.lastModified= current_timestamp " +
 			" where ticket.deliveryDbId =:deliveryDbId ")
 	@Transactional(propagation = Propagation.MANDATORY)
-	void updateTicketPriority(@Param("deliveryDbId") Long deliveryDbId, @Param("priority") TicketPriority priority);
+	long updateTicketPriority(@Param("deliveryDbId") Long deliveryDbId, @Param("priority") TicketPriority priority);
 
 	@Query("select ticket from Ticket ticket order by ticket.priority asc, ticket.lastModified desc")
 	List<RegisteredTicketData> getPriorityTickets();
