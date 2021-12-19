@@ -14,7 +14,7 @@
         </preConditions>
 
         <createTable tableName="delivery_details">
-            <column autoIncrement="true" name="delivery_id" type="INT UNSIGNED">
+            <column autoIncrement="true" name="delivery_id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_delivery_details"/>
             </column>
             <column name="customer_type" type="VARCHAR(255)"/>
@@ -38,10 +38,10 @@
         </preConditions>
 
         <createTable tableName="tickets">
-            <column autoIncrement="true" name="id" type="INT UNSIGNED">
+            <column autoIncrement="true" name="id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_ticket"/>
             </column>
-            <column name="delivery_db_id" type="INT UNSIGNED">
+            <column name="delivery_db_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="priority" type="SMALLINT UNSIGNED" defaultValue="0">

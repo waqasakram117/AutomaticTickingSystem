@@ -43,10 +43,8 @@ public class TicketService {
 	@Nullable
 	public Ticket createTicketIfNotExist(Ticket ticket) {
 
-		var r = repo.existsTicketByDeliveryDbId(ticket.getDeliveryDbId()) ? null :
+		return repo.existsTicketByDeliveryDbId(ticket.getDeliveryDbId()) ? null :
 				createTicket(ticket);
-
-		return r;
 	}
 
 	private Ticket createTicket(Ticket ticket) {

@@ -8,9 +8,9 @@ import static org.mockito.Mockito.verify;
 
 import com.delivery.system.exceptions.NotFoundException;
 import com.delivery.system.ticketing.entities.Delivery;
+import com.delivery.system.ticketing.entities.Ticket;
+import com.delivery.system.ticketing.enums.DeliveryStatus;
 import com.delivery.system.ticketing.mappers.DeliveryMapper;
-import com.delivery.system.ticketing.mappers.TicketMapper;
-import com.delivery.system.ticketing.mappers.TicketPriorityMapper;
 import com.delivery.system.ticketing.pojos.external.NewDeliveryDto;
 import com.delivery.system.ticketing.pojos.external.UpdateDeliveryDto;
 import com.delivery.system.ticketing.repos.DeliveryRepo;
@@ -52,23 +52,20 @@ class DeliveryServiceTest {
 		var dto = prepareValidDeliveryDTO();
 		var delivery = DeliveryMapper.map(dto);
 		delivery.setId(100L);
-		var ticket = TicketMapper.map(delivery.getId(), TicketPriorityMapper.map(delivery.getCustomerType()));
 
 		given(deliveryRepo.saveAndFlush(delivery)).willReturn(delivery);
-		given(ticketService.createTicketIfNotExist(ticket)).willReturn(ticket);
+		given(ticketService.createTicketIfNotExist(( any(Ticket.class) ))).willAnswer(invocation -> invocation.getArgument(0));
 
-		var savedTicket = ticketService.createTicketIfNotExist(ticket);
 		var foodTimeExtendReachingTime = dto.getFoodPreparationTime() * 10000;
 		var savedDelivery = deliveryService.addNewDelivery(delivery, foodTimeExtendReachingTime);
 
-		assertThat(savedTicket).isNotNull();
 		assertThat(savedDelivery).isNotNull();
 		verify(deliveryRepo).saveAndFlush(any(Delivery.class));
 
 	}
 
 	@Test()
-	void successfullyReturnedDeliveryById() {
+	void shouldSuccessfullyReturnedDeliveryById() {
 		var dto = prepareValidDeliveryDTO();
 		var delivery = DeliveryMapper.map(dto);
 		given(deliveryRepo.findById(any(Long.class))).willReturn(Optional.of(delivery));
@@ -88,20 +85,41 @@ class DeliveryServiceTest {
 	}
 
 	@Test
-	void successfullyUpdateDelivery() {
+	void shouldSuccessfullyUpdateDelivery() {
 		var updateDto = prepareValidUpdateDeliveryDTO();
 		var dto = prepareValidDeliveryDTO();
 		var delivery = DeliveryMapper.map(dto);
 		var lastModifiedTime = delivery.getLastModified();
 
-
 		given(deliveryRepo.findById(any(Long.class))).willReturn(Optional.of(delivery));
 		given(deliveryRepo.saveAndFlush(delivery)).willReturn(delivery);
-
 
 		var updatedDelivery = deliveryService.updateDelivery(updateDto);
 
 		assertThat(lastModifiedTime).isNotEqualTo(updatedDelivery.lastModified);
+		assertThat(delivery.getDeliveryStatus()).isEqualTo(DeliveryStatus.PREPARING);
+	}
+
+	@Test
+	void shouldSuccessfullyUpdateDeliveryAndCreateTicket() {
+		var updateDto = prepareValidUpdateDeliveryDTO();
+		var dto = prepareValidDeliveryDTO();
+		var delivery = DeliveryMapper.map(dto);
+		var lastModifiedTime = delivery.getLastModified();
+		updateDto.setFoodPreparationTime(updateDto.getFoodPreparationTime() * 10000);
+
+		given(deliveryRepo.findById(any(Long.class))).will(invocation -> {
+			delivery.setId(invocation.getArgument(0));
+
+			return Optional.of(delivery);
+		});
+		given(deliveryRepo.saveAndFlush(delivery)).willReturn(delivery);
+		given(ticketService.createTicketIfNotExist(( any(Ticket.class) ))).willAnswer(invocation -> invocation.getArgument(0));
+
+		var updatedDelivery = deliveryService.updateDelivery(updateDto);
+
+		assertThat(lastModifiedTime).isNotEqualTo(updatedDelivery.lastModified);
+		assertThat(delivery.getDeliveryStatus()).isEqualTo(DeliveryStatus.PREPARING);
 	}
 
 	private NewDeliveryDto prepareValidDeliveryDTO() {
@@ -122,7 +140,7 @@ class DeliveryServiceTest {
 	private UpdateDeliveryDto prepareValidUpdateDeliveryDTO() {
 		var now = UtcDateTimeUtils.utcTimeNow();
 		var dto = new UpdateDeliveryDto();
-		dto.setDeliveryId(1L);
+		dto.setDeliveryId(101L);
 		dto.setDeliveryStatus("Order Preparing");
 		dto.setTimeToReachDestination(now.plusMinutes(30));
 		dto.setFoodPreparationTime(10);

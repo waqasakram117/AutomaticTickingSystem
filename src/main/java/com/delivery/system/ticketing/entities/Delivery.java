@@ -24,7 +24,7 @@ public class Delivery {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "delivery_id", columnDefinition = "INT UNSIGNED", nullable = false)
+	@Column(name = "delivery_id", nullable = false)
 	private Long id;
 
 	@Column(name = "customer_type")

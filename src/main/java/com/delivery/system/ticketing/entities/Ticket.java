@@ -21,10 +21,10 @@ public class Ticket {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id", columnDefinition = "INT UNSIGNED", nullable = false)
+	@Column(name = "id", nullable = false)
 	private Long id;
 
-	@Column(name = "delivery_db_id", columnDefinition = "INT UNSIGNED", nullable = false, updatable = false)
+	@Column(name = "delivery_db_id", nullable = false, updatable = false)
 	private Long deliveryDbId;
 
 	@Column(name = "priority", columnDefinition = "SMALLINT UNSIGNED")

@@ -38,7 +38,7 @@ public class TicketPriorityScheduler {
 	}
 
 
-	private List<Long> filterPendingDeliveries(List<Delivery> deliveries){
+	private List<Long> filterPendingDeliveries(List<Delivery> deliveries) {
 
 		return deliveries.parallelStream()
 				.filter(this::isDeliveryPending)
@@ -46,12 +46,12 @@ public class TicketPriorityScheduler {
 				.collect(Collectors.toUnmodifiableList());
 	}
 
-	private boolean isDeliveryPending(Delivery d){
+	private boolean isDeliveryPending(Delivery d) {
 		return !isOrderDelivered(d) && isExpectedDeliveryTimePassed(d.getExpectedDeliveryTime());
 	}
 
 	private boolean isExpectedDeliveryTimePassed(LocalDateTime expected) {
-		return UtcDateTimeUtils.utcTimeNow().isBefore(expected);
+		return expected.isBefore(UtcDateTimeUtils.utcTimeNow());
 	}
 
 	private boolean isOrderDelivered(Delivery delivery) {

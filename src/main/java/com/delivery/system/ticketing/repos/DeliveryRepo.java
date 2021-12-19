@@ -12,8 +12,6 @@ import java.util.List;
 @Repository
 public interface DeliveryRepo extends JpaRepository<Delivery, Long> {
 
-//	List<Delivery> findDeliveriesByLastModifiedAfter(LocalDateTime lastModified);
-
 	@Query("select delivery from Delivery delivery" +
 			" where delivery.lastModified >=:from")
 	List<Delivery> findAllWithLastModifiedAfter(@Param("from") LocalDateTime from);

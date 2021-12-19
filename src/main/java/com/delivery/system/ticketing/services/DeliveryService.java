@@ -32,7 +32,7 @@ public class DeliveryService {
 
 	public RegisteredDeliveryData addNewDelivery(Delivery newDelivery, int foodPreparationTime) {
 		var delivery = deliveryRepo.saveAndFlush(newDelivery);
-		log.info("New delivery is created. ID: {}", delivery);
+		log.info("New delivery is created. ID: {}", delivery.getId());
 		scheduleTicketForLateDelivery(delivery, delivery.getTimeToReachDestination(), foodPreparationTime);
 
 		return mapToRegisteredData(delivery);
@@ -68,10 +68,6 @@ public class DeliveryService {
 		}
 	}
 
-	private boolean isDeliveryGoingToDelay(LocalDateTime expectedDeliveryTime, LocalDateTime reachTime, int foodPreparationTime) {
-		return expectedDeliveryTime.isBefore(reachTime.plusMinutes(foodPreparationTime));
-	}
-
 	private void scheduleTicketForLateDelivery(Delivery delivery, LocalDateTime reachTime, Integer foodPreparationTime) {
 		if (isDeliveryGoingToDelay(
 				delivery.getExpectedDeliveryTime(),
@@ -79,6 +75,10 @@ public class DeliveryService {
 				foodPreparationTime == null ? 0 : foodPreparationTime)) {
 			scheduleTicket(delivery);
 		}
+	}
+
+	private boolean isDeliveryGoingToDelay(LocalDateTime expectedDeliveryTime, LocalDateTime reachTime, int foodPreparationTime) {
+		return expectedDeliveryTime.isBefore(reachTime.plusMinutes(foodPreparationTime));
 	}
 
 	private void scheduleTicket(Delivery delivery) {
