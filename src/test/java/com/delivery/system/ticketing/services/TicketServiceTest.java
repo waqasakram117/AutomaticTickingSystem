@@ -37,8 +37,8 @@ class TicketServiceTest {
 		given(ticketRepo.save(ticket)).willReturn(ticket);
 		given(ticketRepo.existsTicketByDeliveryDbId(ticket.getDeliveryDbId())).willReturn(Boolean.FALSE);
 
-		Ticket savedUser = ticketService.createTicketIfNotExist(ticket);
-		assertThat(savedUser).isNotNull();
+		var savedTicket = ticketService.createTicketIfNotExist(ticket);
+		assertThat(savedTicket).isNotNull();
 		verify(ticketRepo).save(any(Ticket.class));
 	}
 
@@ -53,7 +53,7 @@ class TicketServiceTest {
 	}
 
 	@Test
-	void shouldUpdateTicketPrioritySuccessfully() {
+	void shouldUpdateTicketsPrioritySuccessfully() {
 		var tickets = getTickets()
 				.parallelStream()
 				.map(Ticket::getDeliveryDbId)
@@ -68,8 +68,10 @@ class TicketServiceTest {
 
 	@Test
 	void successfullyGetPrioritiesTickets() {
-		var list = getTickets().stream()
-				.map(this::mapToData).collect(Collectors.toUnmodifiableList());
+		var list = getTickets()
+				.parallelStream()
+				.map(this::mapToData)
+				.collect(Collectors.toUnmodifiableList());
 
 		given(ticketRepo.getPriorityTickets()).willReturn(list);
 

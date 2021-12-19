@@ -5,10 +5,8 @@ import static com.delivery.system.ticketing.mappers.DeliveryMapper.mapToRegister
 import com.delivery.system.exceptions.NotFoundException;
 import com.delivery.system.ticketing.entities.Delivery;
 import com.delivery.system.ticketing.enums.DeliveryStatus;
-import com.delivery.system.ticketing.mappers.DeliveryMapper;
 import com.delivery.system.ticketing.mappers.TicketMapper;
 import com.delivery.system.ticketing.mappers.TicketPriorityMapper;
-import com.delivery.system.ticketing.pojos.external.NewDeliveryDto;
 import com.delivery.system.ticketing.pojos.external.UpdateDeliveryDto;
 import com.delivery.system.ticketing.pojos.internal.RegisteredDeliveryData;
 import com.delivery.system.ticketing.repos.DeliveryRepo;
@@ -32,10 +30,10 @@ public class DeliveryService {
 		this.ticketService = ticketService;
 	}
 
-	public RegisteredDeliveryData addNewDelivery(NewDeliveryDto dto) {
-		var delivery = deliveryRepo.saveAndFlush(DeliveryMapper.map(dto));
+	public RegisteredDeliveryData addNewDelivery(Delivery newDelivery, int foodPreparationTime) {
+		var delivery = deliveryRepo.saveAndFlush(newDelivery);
 		log.info("New delivery is created. ID: {}", delivery);
-		scheduleTicketForLateDelivery(delivery, delivery.getTimeToReachDestination(), dto.getFoodPreparationTime());
+		scheduleTicketForLateDelivery(delivery, delivery.getTimeToReachDestination(), foodPreparationTime);
 
 		return mapToRegisteredData(delivery);
 	}
@@ -56,6 +54,7 @@ public class DeliveryService {
 		return deliveryRepo.findAllWithLastModifiedAfter(from);
 	}
 
+
 	private void analysisEstimationTime(Delivery delivery, UpdateDeliveryDto dto) {
 		LocalDateTime reachingTime = dto.getTimeToReachDestination();
 		var foodPrepare = dto.getFoodPreparationTime();
@@ -69,15 +68,15 @@ public class DeliveryService {
 		}
 	}
 
-	private boolean isDeliveryGoingToDelay(LocalDateTime expectedDeliveryTime, LocalDateTime reachTime, int foodPreparationTime){
-		 return expectedDeliveryTime.isBefore(reachTime.plusMinutes(foodPreparationTime));
+	private boolean isDeliveryGoingToDelay(LocalDateTime expectedDeliveryTime, LocalDateTime reachTime, int foodPreparationTime) {
+		return expectedDeliveryTime.isBefore(reachTime.plusMinutes(foodPreparationTime));
 	}
 
-	private void scheduleTicketForLateDelivery(Delivery delivery, LocalDateTime reachTime, Integer foodPreparationTime){
+	private void scheduleTicketForLateDelivery(Delivery delivery, LocalDateTime reachTime, Integer foodPreparationTime) {
 		if (isDeliveryGoingToDelay(
 				delivery.getExpectedDeliveryTime(),
 				reachTime == null ? delivery.getTimeToReachDestination() : reachTime,
-				foodPreparationTime == null ? 0 : foodPreparationTime)){
+				foodPreparationTime == null ? 0 : foodPreparationTime)) {
 			scheduleTicket(delivery);
 		}
 	}
