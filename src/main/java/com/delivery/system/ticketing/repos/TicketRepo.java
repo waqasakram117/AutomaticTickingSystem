@@ -22,9 +22,10 @@ public interface TicketRepo extends JpaRepository<Ticket, Long> {
 	@Query("update Ticket ticket " +
 			" set ticket.priority=:priority, " +
 			" ticket.lastModified= current_timestamp " +
-			" where ticket.deliveryDbId =:deliveryDbId ")
+			" where ticket.deliveryDbId in :deliveryIds ")
 	@Transactional(propagation = Propagation.MANDATORY)
-	long updateTicketPriority(@Param("deliveryDbId") Long deliveryDbId, @Param("priority") TicketPriority priority);
+	int updateTicketPriority(@Param("deliveryIds") List<Long> deliveryIds,
+	                          @Param("priority") TicketPriority priority);
 
 	@Query("select ticket from Ticket ticket order by ticket.priority asc, ticket.lastModified desc")
 	List<RegisteredTicketData> getPriorityTickets();

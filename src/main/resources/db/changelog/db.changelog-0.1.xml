@@ -59,4 +59,20 @@
 
     </changeSet>
 
+    <changeSet id="1639657066568-3" author="waqasakram">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="scheduler"/>
+            </not>
+        </preConditions>
+        <createTable tableName="scheduler">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_scheduler"/>
+            </column>
+            <column name="last_sync_time" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>

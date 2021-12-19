@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -26,9 +27,10 @@ public class TicketService {
 	}
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public long updateTicketPriority(Long deliveryDbId, TicketPriority priority) {
-		var results = repo.updateTicketPriority(deliveryDbId, priority);
-		log.info("Ticket Priority is updated: {}", deliveryDbId);
+	public int updateTicketPriority(List<Long> deliveryIds, TicketPriority priority) {
+		var results = repo.updateTicketPriority(deliveryIds, priority);
+		var logMsg = Arrays.toString(deliveryIds.toArray());
+		log.info("Total {} Tickets Priorities are updated: {}", results, logMsg);
 
 		return results;
 	}
@@ -47,7 +49,7 @@ public class TicketService {
 
 	private Ticket createTicket(Ticket ticket) {
 		var savedTicket = repo.save(ticket);
-		log.info("New Ticket is generated ID: {} ", savedTicket);
+		log.info("New Ticket is generated ID: {} ", savedTicket.getDeliveryDbId());
 
 		return savedTicket;
 	}

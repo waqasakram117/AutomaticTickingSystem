@@ -1,15 +1,18 @@
-package com.delivery.system.ticketing.services;
+package com.delivery.system.scheduler.services;
 
 import com.delivery.system.ticketing.entities.Delivery;
 import com.delivery.system.ticketing.enums.DeliveryStatus;
 import com.delivery.system.ticketing.enums.TicketPriority;
+import com.delivery.system.ticketing.services.DeliveryService;
+import com.delivery.system.ticketing.services.TicketService;
 import com.delivery.system.utils.UtcDateTimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TicketPriorityScheduler {
@@ -19,27 +22,32 @@ public class TicketPriorityScheduler {
 	private final DeliveryService deliveryService;
 
 
-	@Autowired
 	public TicketPriorityScheduler(TicketService ticketService, DeliveryService deliveryService) {
 		this.ticketService = ticketService;
 		this.deliveryService = deliveryService;
 	}
 
-	public void prioritiesTickets(LocalDateTime from, LocalDateTime to) {
-		var deliveries = deliveryService.getAllDeliveries(from, to);
+	public int prioritiesTickets(LocalDateTime from) {
 
-		System.out.printf("Now: %s Last: %s Size: %d %n", from, to, deliveries.size());
-		for (Delivery delivery : deliveries) {
-			prioritiesTicketForPendingDelivery(delivery);
-		}
+		var deliveries = deliveryService.getAllDeliveries(from);
+		log.info("Current sync time {}, results: [{}]", from, deliveries.size());
 
+		var pendingDeliveries = filterPendingDeliveries(deliveries);
+
+		return ticketService.updateTicketPriority(pendingDeliveries, TicketPriority.HIGH);
 	}
 
-	private void prioritiesTicketForPendingDelivery(Delivery delivery) {
-		if (!isOrderDelivered(delivery) && isExpectedDeliveryTimePassed(delivery.getExpectedDeliveryTime())) {
-			ticketService.updateTicketPriority(delivery.getId(), TicketPriority.HIGH);
-			log.info("Delivery: {} priority is changed", delivery.getId());
-		}
+
+	private List<Long> filterPendingDeliveries(List<Delivery> deliveries){
+
+		return deliveries.parallelStream()
+				.filter(this::isDeliveryPending)
+				.map(Delivery::getId)
+				.collect(Collectors.toUnmodifiableList());
+	}
+
+	private boolean isDeliveryPending(Delivery d){
+		return !isOrderDelivered(d) && isExpectedDeliveryTimePassed(d.getExpectedDeliveryTime());
 	}
 
 	private boolean isExpectedDeliveryTimePassed(LocalDateTime expected) {

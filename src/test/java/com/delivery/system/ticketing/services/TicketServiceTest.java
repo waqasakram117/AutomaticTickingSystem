@@ -54,12 +54,16 @@ class TicketServiceTest {
 
 	@Test
 	void shouldUpdateTicketPrioritySuccessfully() {
-		Ticket ticket = TicketMapper.map(1L, TicketPriority.HIGH);
+		var tickets = getTickets()
+				.parallelStream()
+				.map(Ticket::getDeliveryDbId)
+				.collect(Collectors.toUnmodifiableList());
+		var srcSize = tickets.size();
 
-		given(ticketRepo.updateTicketPriority(ticket.getId(), TicketPriority.LOW)).willReturn(1L);
+		given(ticketRepo.updateTicketPriority(tickets, TicketPriority.LOW)).willReturn(srcSize);
 
-		var result = ticketService.updateTicketPriority(ticket.getId(), TicketPriority.LOW);
-		assertEquals(1L, result);
+		var result = ticketService.updateTicketPriority(tickets, TicketPriority.LOW);
+		assertEquals(srcSize, result);
 	}
 
 	@Test
