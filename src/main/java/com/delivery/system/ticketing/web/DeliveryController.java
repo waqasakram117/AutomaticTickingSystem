@@ -5,7 +5,6 @@ import com.delivery.system.ticketing.pojos.external.NewDeliveryDto;
 import com.delivery.system.ticketing.pojos.external.UpdateDeliveryDto;
 import com.delivery.system.ticketing.pojos.internal.RegisteredDeliveryData;
 import com.delivery.system.ticketing.services.DeliveryService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +19,6 @@ public class DeliveryController {
 
 	private final DeliveryService service;
 
-	@Autowired
 	public DeliveryController(DeliveryService service) {
 		this.service = service;
 	}

@@ -6,7 +6,6 @@ import com.delivery.system.ticketing.pojos.internal.RegisteredTicketData;
 import com.delivery.system.ticketing.repos.TicketRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -21,7 +20,6 @@ public class TicketService {
 	private static final Logger log = LoggerFactory.getLogger(TicketService.class);
 	private final TicketRepo repo;
 
-	@Autowired
 	public TicketService(TicketRepo repo) {
 		this.repo = repo;
 	}
