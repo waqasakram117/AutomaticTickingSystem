@@ -117,9 +117,20 @@ class DeliveryControllerTest {
 						objectMapper.writeValueAsString(expectedResponseBody).toLowerCase());
 	}
 
+	@Test
+	void whenDeliveryIdMissingInUpdateContentThenReturns400() throws Exception {
+		var dto = prepareValidUpdateDeliveryDTO();
+		dto.setDeliveryId(null);
+
+		mockMvc.perform(put("/delivery")
+						.content(objectMapper.writeValueAsString(dto))
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isBadRequest());
+	}
+
 
 	@Test
-	void whenValidUpdateContentDataThenUpdateDelivery() throws Exception {
+	void whenValidUpdateContentThenUpdateDelivery() throws Exception {
 
 		var dto = prepareValidUpdateDeliveryDTO();
 		var deliveryDto = prepareValidDeliveryDTO();
