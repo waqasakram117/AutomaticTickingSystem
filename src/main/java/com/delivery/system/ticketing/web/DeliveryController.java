@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/delivery")
+@RequestMapping("/deliveries")
 public class DeliveryController {
 
 	private final DeliveryService service;
