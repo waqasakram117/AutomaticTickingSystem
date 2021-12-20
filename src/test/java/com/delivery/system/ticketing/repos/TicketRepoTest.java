@@ -1,5 +1,6 @@
 package com.delivery.system.ticketing.repos;
 
+import static com.delivery.system.ticketing.enums.TicketPriority.valueOf;
 import static com.delivery.system.ticketing.mappers.TicketPriorityMapper.map;
 import static com.delivery.system.utils.UtcDateTimeUtils.utcTimeNow;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -11,6 +12,7 @@ import com.delivery.system.ticketing.enums.TicketPriority;
 import com.delivery.system.ticketing.mappers.DeliveryMapper;
 import com.delivery.system.ticketing.mappers.TicketMapper;
 import com.delivery.system.ticketing.pojos.external.NewDeliveryDto;
+import com.delivery.system.ticketing.pojos.internal.RegisteredTicketData;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -87,16 +89,16 @@ class TicketRepoTest {
 				.mapToObj(i -> persistFreshTicket(TicketPriority.HIGH))
 				.collect(Collectors.toUnmodifiableList());
 
-		var priorityTickets = ticketRepo.getPriorityTickets().stream()
-				.map(t -> TicketPriority.valueOf(t.getPriority()))
-				.collect(Collectors.toUnmodifiableList());
+		var tickets = ticketRepo.getPriorityTickets();
 
-		var subListHigh = priorityTickets.subList(0, count); // (0, 5)
-		var high = subListHigh.stream().allMatch(h -> h == TicketPriority.HIGH);
-		var subListMid = priorityTickets.subList(count, count * 2); // (5, 10)
-		var mid = subListMid.stream().allMatch(h -> h == TicketPriority.MEDIUM);
-		var subListLow = priorityTickets.subList(count * 2, count * 3); // (10, 15)
-		var low = subListLow.stream().allMatch(h -> h == TicketPriority.LOW);
+		var subListHigh = tickets.subList(0, count); // (0, 5)
+		var high = subListHigh.stream().allMatch(t -> valueOf(t.getPriority()) == TicketPriority.HIGH);
+
+		var subListMid = tickets.subList(count, count * 2); // (5, 10)
+		var mid = subListMid.stream().allMatch(t -> valueOf(t.getPriority()) == TicketPriority.MEDIUM);
+
+		var subListLow = tickets.subList(count * 2, count * 3); // (10, 15)
+		var low = subListLow.stream().allMatch(t -> valueOf(t.getPriority()) == TicketPriority.LOW);
 
 		assertThat(high).isTrue();
 		assertThat(mid).isTrue();
@@ -104,6 +106,9 @@ class TicketRepoTest {
 		assertThat(highTickets.size()).isEqualTo(subListHigh.size());
 		assertThat(lowTickets.size()).isEqualTo(subListLow.size());
 		assertThat(midTickets.size()).isEqualTo(subListMid.size());
+		assertThat(allTicketsAreTimelySorted(subListHigh)).isTrue();
+		assertThat(allTicketsAreTimelySorted(subListMid)).isTrue();
+		assertThat(allTicketsAreTimelySorted(subListLow)).isTrue();
 	}
 
 	@Test
@@ -124,6 +129,11 @@ class TicketRepoTest {
 		assertThat(lowTicketsCount).isEqualTo(updatedCount);
 	}
 
+	private boolean allTicketsAreTimelySorted(List<RegisteredTicketData> data){
+		return IntStream.range(1, data.size())
+				.mapToObj(index -> data.get(index - 1).getLastModified().isAfter(data.get(index).getLastModified()))
+				.allMatch(all -> all);
+	}
 
 	private Ticket persistFreshTicket() {
 		return persistFreshTicket(TicketPriority.MEDIUM);
