@@ -11,7 +11,7 @@ public class BadRequestException extends TicketingSystemException {
 
 
 	public BadRequestException(String message) {
-		super(message, null);
+		this(message, null);
 	}
 
 	public BadRequestException(String message, Throwable throwable) {

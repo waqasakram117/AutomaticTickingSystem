@@ -11,7 +11,7 @@ public class NotFoundException extends TicketingSystemException {
 
 
 	public NotFoundException(String message) {
-		super(message, null);
+		this(message, null);
 	}
 
 	public NotFoundException(String message, Throwable throwable) {
