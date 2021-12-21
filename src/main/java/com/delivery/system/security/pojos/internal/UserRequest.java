@@ -14,6 +14,7 @@ public class UserRequest {
 	private String role;
 
 	public UserRequest() {
+		// for json marshaling
 	}
 
 	public static UserRequest of(String userName, String password, String role) {
