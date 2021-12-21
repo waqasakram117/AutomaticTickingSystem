@@ -8,8 +8,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 @Service
 public class AuthenticationUserDetailService implements UserDetailsService {
@@ -31,6 +31,6 @@ public class AuthenticationUserDetailService implements UserDetailsService {
 	}
 
 	private Collection<? extends GrantedAuthority> getAuthorities(String role) {
-		return Arrays.asList(new SimpleGrantedAuthority(role));
+		return List.of(new SimpleGrantedAuthority(role));
 	}
 }

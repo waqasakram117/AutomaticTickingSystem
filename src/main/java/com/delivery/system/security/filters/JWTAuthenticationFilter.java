@@ -7,6 +7,7 @@ import static com.delivery.system.security.config.SecurityConstants.TOKEN_PREFIX
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.delivery.system.exceptions.TicketingSystemException;
 import com.delivery.system.security.pojos.internal.UserRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -45,7 +46,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 							new ArrayList<>())
 			);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new TicketingSystemException(e.getMessage());
 		}
 	}
 

@@ -40,9 +40,9 @@ public class DeliveryService {
 
 	public RegisteredDeliveryData updateDelivery(UpdateDeliveryDto dto) {
 		var delivery = getDeliveryById(dto.getDeliveryId());
-		delivery.setLastModified(UtcDateTimeUtils.utcTimeNow());
 		updateDeliveryStatus(delivery, dto.getDeliveryStatus());
 		analysisEstimationTime(delivery, dto);
+		delivery.setLastModified(UtcDateTimeUtils.utcTimeNow());
 
 		var updatedDelivery = deliveryRepo.saveAndFlush(delivery);
 		log.info("Delivery ID: {} is updated", updatedDelivery.getId());

@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
-class TicketingSystemException extends RuntimeException {
+public class TicketingSystemException extends RuntimeException {
 
 	private static final Logger log = LoggerFactory.getLogger(TicketingSystemException.class);
 	private static final long serialVersionUID = 6090137084852706397L;
@@ -12,7 +12,11 @@ class TicketingSystemException extends RuntimeException {
 
 
 	public TicketingSystemException(String message) {
-		this(message, null);
+		this(message, (HttpStatus) null);
+	}
+
+	public TicketingSystemException(String message, HttpStatus httpStatus) {
+		this(message, null, httpStatus);
 	}
 
 	public TicketingSystemException(String message, Throwable throwable) {
@@ -20,7 +24,7 @@ class TicketingSystemException extends RuntimeException {
 		log.error(message, throwable);
 	}
 
-	public TicketingSystemException(final String message, final Throwable throwable, final HttpStatus httpStatus) {
+	public TicketingSystemException(String message, Throwable throwable, HttpStatus httpStatus) {
 		super(message, throwable);
 		this.httpStatus = httpStatus;
 	}

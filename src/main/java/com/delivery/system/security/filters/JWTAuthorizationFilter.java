@@ -18,8 +18,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
@@ -68,6 +68,6 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 	}
 
 	private Collection<? extends GrantedAuthority> getAuthorities(String role) {
-		return Arrays.asList(new SimpleGrantedAuthority(role));
+		return List.of(new SimpleGrantedAuthority(role));
 	}
 }

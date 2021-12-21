@@ -24,7 +24,7 @@ public class SchedulerEntity {
 	@Column(name = "last_sync_time", nullable = false)
 	private LocalDateTime lastSyncTime;
 
-	public static SchedulerEntity newInstance(){
+	public static SchedulerEntity newInstance() {
 		return new SchedulerEntity();
 	}
 
