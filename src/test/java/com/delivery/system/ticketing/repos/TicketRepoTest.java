@@ -124,12 +124,12 @@ class TicketRepoTest {
 				.map(Ticket::getDeliveryDbId)
 				.collect(Collectors.toUnmodifiableList());
 
-		var updatedCount = ticketRepo.updateTicketPriority(deliverIds, TicketPriority.LOW);
+		var updatedCount = ticketRepo.updateTicketPriority(deliverIds, TicketPriority.LOW, utcTimeNow());
 
 		assertThat(lowTicketsCount).isEqualTo(updatedCount);
 	}
 
-	private boolean allTicketsAreTimelySorted(List<RegisteredTicketData> data){
+	private boolean allTicketsAreTimelySorted(List<RegisteredTicketData> data) {
 		return IntStream.range(1, data.size())
 				.mapToObj(index -> data.get(index - 1).getLastModified().isAfter(data.get(index).getLastModified()))
 				.allMatch(all -> all);

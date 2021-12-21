@@ -60,7 +60,7 @@ class TicketServiceTest {
 				.collect(Collectors.toUnmodifiableList());
 		var srcSize = tickets.size();
 
-		given(ticketRepo.updateTicketPriority(tickets, TicketPriority.LOW)).willReturn(srcSize);
+		given(ticketRepo.updateTicketPriority(any(), any(TicketPriority.class), any(LocalDateTime.class))).willReturn(srcSize);
 
 		var result = ticketService.updateTicketPriority(tickets, TicketPriority.LOW);
 		assertEquals(srcSize, result);

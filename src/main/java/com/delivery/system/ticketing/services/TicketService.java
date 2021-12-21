@@ -1,5 +1,7 @@
 package com.delivery.system.ticketing.services;
 
+import static com.delivery.system.utils.UtcDateTimeUtils.utcTimeNow;
+
 import com.delivery.system.ticketing.entities.Ticket;
 import com.delivery.system.ticketing.enums.TicketPriority;
 import com.delivery.system.ticketing.pojos.internal.RegisteredTicketData;
@@ -26,7 +28,7 @@ public class TicketService {
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public int updateTicketPriority(List<Long> deliveryIds, TicketPriority priority) {
-		var results = repo.updateTicketPriority(deliveryIds, priority);
+		var results = repo.updateTicketPriority(deliveryIds, priority, utcTimeNow());
 		var logMsg = Arrays.toString(deliveryIds.toArray());
 		log.info("Total {} Tickets Priorities are updated: {}", results, logMsg);
 

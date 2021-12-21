@@ -30,7 +30,7 @@ public class TicketPriorityScheduler {
 	public int prioritiesTickets(LocalDateTime from) {
 
 		var deliveries = deliveryService.getAllDeliveries(from);
-		log.info("Current sync time {}, results: [{}]", from, deliveries.size());
+		log.info("Current syncing from time {}, results: [{}]", from, deliveries.size());
 
 		var pendingDeliveries = filterPendingDeliveries(deliveries);
 
