@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface TicketRepo extends JpaRepository<Ticket, Long> {
@@ -26,7 +27,7 @@ public interface TicketRepo extends JpaRepository<Ticket, Long> {
 			" ticket.lastModified =:lastModifiedDate " +
 			" where ticket.deliveryDbId in :deliveryIds ")
 	@Transactional(propagation = Propagation.MANDATORY)
-	int updateTicketPriority(@Param("deliveryIds") List<Long> deliveryIds,
+	int updateTicketPriority(@Param("deliveryIds") Set<Long> deliveryIds,
 	                         @Param("priority") TicketPriority priority,
 	                         @Param("lastModifiedDate") LocalDateTime lastModifiedDate);
 
@@ -36,7 +37,7 @@ public interface TicketRepo extends JpaRepository<Ticket, Long> {
 	@Query("select ticket from Ticket ticket " +
 			"where ticket.deliveryDbId in :deliveryIds" +
 			" and ticket.ticketStatus =:status")
-	List<Ticket> getAllTicketsByDeliveryDbIdsAndStatus(@Param("deliveryIds") List<Long> deliveryIds,
+	List<Ticket> getAllTicketsByDeliveryDbIdsAndStatus(@Param("deliveryIds") Set<Long> deliveryIds,
 	                                                   @Param("status") TicketStatus status);
 
 }

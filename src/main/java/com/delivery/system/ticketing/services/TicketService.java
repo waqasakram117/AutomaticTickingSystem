@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class TicketService {
@@ -29,7 +30,7 @@ public class TicketService {
 	}
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public int updateTicketPriority(List<Long> deliveryIds, TicketPriority priority) {
+	public int updateTicketPriority(Set<Long> deliveryIds, TicketPriority priority) {
 		if (deliveryIds.isEmpty()) return 0;
 
 
@@ -45,7 +46,7 @@ public class TicketService {
 		return repo.getPriorityTickets();
 	}
 
-	public List<Ticket> getAllOpenTicketsByDeliveries(List<Long> deliveries) {
+	public List<Ticket> getAllOpenTicketsByDeliveries(Set<Long> deliveries) {
 
 		return repo.getAllTicketsByDeliveryDbIdsAndStatus(deliveries, TicketStatus.OPEN);
 	}
