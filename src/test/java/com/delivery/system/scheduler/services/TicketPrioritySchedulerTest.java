@@ -18,7 +18,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,11 +51,11 @@ class TicketPrioritySchedulerTest {
 				.flatMap(Collection::stream)
 				.collect(Collectors.toUnmodifiableList());
 
-		given(deliveryService.getAllDeliveries(any(LocalDateTime.class))).willReturn(mixed);
+		given(deliveryService.getAllUndeliveredDeliveries()).willReturn(mixed);
 		given(ticketService.updateTicketPriority(anyList(), any(TicketPriority.class)))
 				.willAnswer(invocation -> ( (List<Long>) invocation.getArgument(0) ).size());
 
-		var result = scheduler.prioritiesTickets(UtcDateTimeUtils.utcTimeNow());
+		var result = scheduler.prioritiesTickets();
 
 		assertThat(result).isEqualTo(10);
 	}

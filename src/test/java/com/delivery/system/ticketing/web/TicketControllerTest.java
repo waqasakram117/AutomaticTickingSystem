@@ -82,10 +82,10 @@ class TicketControllerTest {
 
 	private List<Ticket> getTickets() {
 		return List.of(
-				TicketMapper.map(1L, TicketPriority.HIGH),
-				TicketMapper.map(2L, TicketPriority.HIGH),
-				TicketMapper.map(3L, TicketPriority.LOW),
-				TicketMapper.map(4L, TicketPriority.MEDIUM),
-				TicketMapper.map(5L, TicketPriority.MEDIUM));
+				TicketMapper.mapToNewTicket(1L, TicketPriority.HIGH),
+				TicketMapper.mapToNewTicket(2L, TicketPriority.HIGH),
+				TicketMapper.mapToNewTicket(3L, TicketPriority.LOW),
+				TicketMapper.mapToNewTicket(4L, TicketPriority.MEDIUM),
+				TicketMapper.mapToNewTicket(5L, TicketPriority.MEDIUM));
 	}
 }

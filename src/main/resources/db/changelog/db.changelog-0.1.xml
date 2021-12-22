@@ -22,6 +22,7 @@
             <column name="expected_delivery_time" type="TIMESTAMP"/>
             <column name="current_distance_from_destination_in_meters" type="INT UNSIGNED"/>
             <column name="time_to_reach_destination" type="TIMESTAMP"/>
+            <column name="ticket_created" type="BIT(1)" defaultValue="0"/>
             <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -45,6 +46,9 @@
                 <constraints nullable="false"/>
             </column>
             <column name="priority" type="SMALLINT UNSIGNED" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="SMALLINT UNSIGNED">
                 <constraints nullable="false"/>
             </column>
             <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">

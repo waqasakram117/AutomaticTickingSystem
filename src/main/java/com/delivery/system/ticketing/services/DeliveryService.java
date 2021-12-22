@@ -41,6 +41,7 @@ public class DeliveryService {
 	public RegisteredDeliveryData updateDelivery(UpdateDeliveryDto dto) {
 		var delivery = getDeliveryById(dto.getDeliveryId());
 		updateDeliveryStatus(delivery, dto.getDeliveryStatus());
+		updateFoodPreparationTime(delivery, dto.getFoodPreparationTime());
 		analysisEstimationTime(delivery, dto);
 		delivery.setLastModified(UtcDateTimeUtils.utcTimeNow());
 
@@ -50,8 +51,14 @@ public class DeliveryService {
 		return mapToRegisteredData(updatedDelivery);
 	}
 
-	public List<Delivery> getAllDeliveries(LocalDateTime from) {
-		return deliveryRepo.findAllWithLastModifiedAfter(from);
+	private void updateFoodPreparationTime(Delivery delivery, Integer foodPreparationTime) {
+		if (foodPreparationTime != null) {
+			delivery.setFoodPreparationTime(foodPreparationTime);
+		}
+	}
+
+	public List<Delivery> getAllUndeliveredDeliveries() {
+		return deliveryRepo.findAllDeliveriesByNotStatus(DeliveryStatus.DELIEVERED);
 	}
 
 
@@ -82,7 +89,7 @@ public class DeliveryService {
 	}
 
 	private void scheduleTicket(Delivery delivery) {
-		ticketService.createTicketIfNotExist(TicketMapper.map(delivery.getId(),
+		ticketService.createTicketIfNotExist(TicketMapper.mapToNewTicket(delivery.getId(),
 				TicketPriorityMapper.map(delivery.getCustomerType())));
 	}
 

@@ -1,7 +1,9 @@
 package com.delivery.system.ticketing.entities;
 
 import com.delivery.system.ticketing.entities.convertors.TicketPriorityConverter;
+import com.delivery.system.ticketing.entities.convertors.TicketStatusConverter;
 import com.delivery.system.ticketing.enums.TicketPriority;
+import com.delivery.system.ticketing.enums.TicketStatus;
 import com.delivery.system.utils.UtcDateTimeUtils;
 
 import javax.persistence.Column;
@@ -31,6 +33,10 @@ public class Ticket {
 	@Convert(converter = TicketPriorityConverter.class)
 	private TicketPriority priority;
 
+	@Column(name = "status", columnDefinition = "SMALLINT UNSIGNED")
+	@Convert(converter = TicketStatusConverter.class)
+	private TicketStatus ticketStatus;
+
 	@Column(name = "created_at", updatable = false, nullable = false)
 	private LocalDateTime createdAt;
 
@@ -48,6 +54,14 @@ public class Ticket {
 	protected void onUpdate() {
 		var now = UtcDateTimeUtils.utcTimeNow();
 		setLastModified(now);
+	}
+
+	public TicketStatus getTicketStatus() {
+		return ticketStatus;
+	}
+
+	public void setTicketStatus(TicketStatus ticketStatus) {
+		this.ticketStatus = ticketStatus;
 	}
 
 	public LocalDateTime getCreatedAt() {

@@ -4,6 +4,7 @@ import static com.delivery.system.utils.UtcDateTimeUtils.utcTimeNow;
 
 import com.delivery.system.ticketing.entities.Ticket;
 import com.delivery.system.ticketing.enums.TicketPriority;
+import com.delivery.system.ticketing.enums.TicketStatus;
 import com.delivery.system.ticketing.pojos.internal.RegisteredTicketData;
 import com.delivery.system.ticketing.repos.TicketRepo;
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -28,6 +30,9 @@ public class TicketService {
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public int updateTicketPriority(List<Long> deliveryIds, TicketPriority priority) {
+		if (deliveryIds.isEmpty()) return 0;
+
+
 		var results = repo.updateTicketPriority(deliveryIds, priority, utcTimeNow());
 		var logMsg = Arrays.toString(deliveryIds.toArray());
 		log.info("Total {} Tickets Priorities are updated: {}", results, logMsg);
@@ -40,6 +45,16 @@ public class TicketService {
 		return repo.getPriorityTickets();
 	}
 
+	public List<Ticket> getAllOpenTicketsByDeliveries(List<Long> deliveries) {
+
+		return repo.getAllTicketsByDeliveryDbIdsAndStatus(deliveries, TicketStatus.OPEN);
+	}
+
+	public List<Ticket> createTickets(List<Ticket> tickets) {
+
+		return tickets.isEmpty() ? Collections.emptyList() : repo.saveAllAndFlush(tickets);
+	}
+
 	@Nullable
 	public Ticket createTicketIfNotExist(Ticket ticket) {
 
@@ -48,7 +63,7 @@ public class TicketService {
 	}
 
 	private Ticket createTicket(Ticket ticket) {
-		var savedTicket = repo.save(ticket);
+		var savedTicket = repo.saveAndFlush(ticket);
 		log.info("New Ticket is generated ID: {} ", savedTicket.getDeliveryDbId());
 
 		return savedTicket;

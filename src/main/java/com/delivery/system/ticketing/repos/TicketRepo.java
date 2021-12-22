@@ -2,6 +2,7 @@ package com.delivery.system.ticketing.repos;
 
 import com.delivery.system.ticketing.entities.Ticket;
 import com.delivery.system.ticketing.enums.TicketPriority;
+import com.delivery.system.ticketing.enums.TicketStatus;
 import com.delivery.system.ticketing.pojos.internal.RegisteredTicketData;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -31,5 +32,11 @@ public interface TicketRepo extends JpaRepository<Ticket, Long> {
 
 	@Query("select ticket from Ticket ticket order by ticket.priority asc, ticket.lastModified desc")
 	List<RegisteredTicketData> getPriorityTickets();
+
+	@Query("select ticket from Ticket ticket " +
+			"where ticket.deliveryDbId in :deliveryIds" +
+			" and ticket.ticketStatus =:status")
+	List<Ticket> getAllTicketsByDeliveryDbIdsAndStatus(@Param("deliveryIds") List<Long> deliveryIds,
+	                                                   @Param("status") TicketStatus status);
 
 }

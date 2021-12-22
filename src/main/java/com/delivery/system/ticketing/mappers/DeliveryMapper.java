@@ -12,6 +12,7 @@ public final class DeliveryMapper {
 
 	public static Delivery map(NewDeliveryDto dto) {
 		var delivery = new Delivery();
+		delivery.setFoodPreparationTime(dto.getFoodPreparationTime());
 		delivery.setDeliveryStatus(DeliveryStatus.getByStatus(dto.getDeliveryStatus()));
 		delivery.setCustomerType(CustomerType.getByType(dto.getCustomerType()));
 		delivery.setDestinationDistance(dto.getDestinationDistance());
@@ -27,6 +28,7 @@ public final class DeliveryMapper {
 				.id(delivery.getId())
 				.deliveryStatus(delivery.getDeliveryStatus())
 				.destinationDistance(delivery.getDestinationDistance())
+				.foodPreparationTime(delivery.getFoodPreparationTime())
 				.expectedDeliveryTime(delivery.getExpectedDeliveryTime())
 				.timeToReachDestination(delivery.getTimeToReachDestination())
 				.createdAt(delivery.getCreatedAt())

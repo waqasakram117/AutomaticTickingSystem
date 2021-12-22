@@ -32,7 +32,7 @@ class TicketServiceTest {
 
 	@Test
 	void shouldSaveTicketSuccessfully() {
-		Ticket ticket = TicketMapper.map(1L, TicketPriority.HIGH);
+		Ticket ticket = TicketMapper.mapToNewTicket(1L, TicketPriority.HIGH);
 
 		given(ticketRepo.save(ticket)).willReturn(ticket);
 		given(ticketRepo.existsTicketByDeliveryDbId(ticket.getDeliveryDbId())).willReturn(Boolean.FALSE);
@@ -44,7 +44,7 @@ class TicketServiceTest {
 
 	@Test
 	void shouldNotCreateTicketBecauseAlreadyExisted() {
-		Ticket ticket = TicketMapper.map(1L, TicketPriority.HIGH);
+		Ticket ticket = TicketMapper.mapToNewTicket(1L, TicketPriority.HIGH);
 
 		given(ticketRepo.existsTicketByDeliveryDbId(ticket.getDeliveryDbId())).willReturn(Boolean.TRUE);
 
@@ -82,11 +82,11 @@ class TicketServiceTest {
 
 	private List<Ticket> getTickets() {
 		return List.of(
-				TicketMapper.map(1L, TicketPriority.HIGH),
-				TicketMapper.map(2L, TicketPriority.HIGH),
-				TicketMapper.map(3L, TicketPriority.LOW),
-				TicketMapper.map(4L, TicketPriority.MEDIUM),
-				TicketMapper.map(5L, TicketPriority.MEDIUM));
+				TicketMapper.mapToNewTicket(1L, TicketPriority.HIGH),
+				TicketMapper.mapToNewTicket(2L, TicketPriority.HIGH),
+				TicketMapper.mapToNewTicket(3L, TicketPriority.LOW),
+				TicketMapper.mapToNewTicket(4L, TicketPriority.MEDIUM),
+				TicketMapper.mapToNewTicket(5L, TicketPriority.MEDIUM));
 	}
 
 	private RegisteredTicketData mapToData(Ticket ticket) {

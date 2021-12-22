@@ -44,7 +44,7 @@ class TicketRepoTest {
 
 	@Test
 	void throwForeignKeyExceptionWithInvalidDeliveryIdForTicketSaving() {
-		var ticket = TicketMapper.map(1L, TicketPriority.HIGH);
+		var ticket = TicketMapper.mapToNewTicket(1L, TicketPriority.HIGH);
 
 		assertThatThrownBy(() -> ticketRepo.save(ticket))
 				.isInstanceOf(DataIntegrityViolationException.class);
@@ -54,7 +54,7 @@ class TicketRepoTest {
 	void shouldSuccessfullySaveTicket() {
 		var deliveryDto = prepareValidDeliveryDTO();
 		var delivery = deliveryRepo.save(DeliveryMapper.map(deliveryDto));
-		var ticket = TicketMapper.map(delivery.getId(), TicketPriority.HIGH);
+		var ticket = TicketMapper.mapToNewTicket(delivery.getId(), TicketPriority.HIGH);
 		var savedTicket = ticketRepo.save(ticket);
 
 		assertThat(savedTicket).isNotNull();
@@ -144,7 +144,7 @@ class TicketRepoTest {
 		var delivery = DeliveryMapper.map(deliveryDto);
 		delivery.setCreatedAt(utcTimeNow());
 		var savedDelivery = deliveryRepo.save(delivery);
-		var ticket = TicketMapper.map(savedDelivery.getId(), map(delivery.getCustomerType()));
+		var ticket = TicketMapper.mapToNewTicket(savedDelivery.getId(), map(delivery.getCustomerType()));
 		ticket.setCreatedAt(utcTimeNow());
 		ticket.setLastModified(utcTimeNow());
 		return ticketRepo.saveAndFlush(ticket);

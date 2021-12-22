@@ -17,6 +17,8 @@ public final class RegisteredDeliveryData {
 
 	public final Integer destinationDistance;
 
+	public final Integer foodPreparationTime;
+
 	public final LocalDateTime timeToReachDestination;
 
 	public final LocalDateTime createdAt;
@@ -30,6 +32,7 @@ public final class RegisteredDeliveryData {
 		this.timeToReachDestination = builder.timeToReachDestination;
 		this.deliveryStatus = builder.deliveryStatus;
 		this.destinationDistance = builder.destinationDistance;
+		this.foodPreparationTime = builder.foodPreparationTime;
 		this.id = builder.id;
 		this.lastModified = builder.lastModified;
 	}
@@ -45,6 +48,7 @@ public final class RegisteredDeliveryData {
 		private String deliveryStatus;
 		private LocalDateTime expectedDeliveryTime;
 		private Integer destinationDistance;
+		private Integer foodPreparationTime;
 		private LocalDateTime timeToReachDestination;
 		private LocalDateTime createdAt;
 		private LocalDateTime lastModified;
@@ -74,6 +78,11 @@ public final class RegisteredDeliveryData {
 
 		public Builder destinationDistance(Integer destinationDistance) {
 			this.destinationDistance = destinationDistance;
+			return this;
+		}
+
+		public Builder foodPreparationTime(Integer foodPreparationTime) {
+			this.foodPreparationTime = foodPreparationTime;
 			return this;
 		}
 

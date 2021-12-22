@@ -15,7 +15,6 @@ import javax.persistence.Id;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
-import javax.validation.constraints.Positive;
 import java.time.LocalDateTime;
 
 @Table(name = "DELIVERY_DETAILS")
@@ -38,12 +37,17 @@ public class Delivery {
 	@Column(name = "expected_delivery_time")
 	private LocalDateTime expectedDeliveryTime;
 
-	@Positive
 	@Column(name = "current_distance_from_destination_in_meters")
 	private Integer destinationDistance;
 
+	@Column(name = "food_prepar_Time")
+	private Integer foodPreparationTime;
+
 	@Column(name = "time_to_reach_destination")
 	private LocalDateTime timeToReachDestination;
+
+	@Column(name = "ticket_created")
+	private Boolean ticketCreated = Boolean.FALSE;
 
 	@Column(name = "created_at", updatable = false, nullable = false)
 	private LocalDateTime createdAt;
@@ -61,6 +65,14 @@ public class Delivery {
 	protected void onUpdate() {
 		var now = UtcDateTimeUtils.utcTimeNow();
 		setLastModified(now);
+	}
+
+	public Integer getFoodPreparationTime() {
+		return foodPreparationTime;
+	}
+
+	public void setFoodPreparationTime(Integer foodPreparationTime) {
+		this.foodPreparationTime = foodPreparationTime;
 	}
 
 	public LocalDateTime getCreatedAt() {
@@ -125,5 +137,13 @@ public class Delivery {
 
 	public void setTimeToReachDestination(LocalDateTime timeToReachDestination) {
 		this.timeToReachDestination = timeToReachDestination;
+	}
+
+	public Boolean getTicketCreated() {
+		return ticketCreated;
+	}
+
+	public void setTicketCreated(Boolean ticketCreated) {
+		this.ticketCreated = ticketCreated;
 	}
 }
