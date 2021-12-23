@@ -3,6 +3,7 @@ package com.delivery.system.ticketing.repos;
 import static com.delivery.system.utils.UtcDateTimeUtils.utcTimeNow;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.delivery.system.ticketing.enums.DeliveryStatus;
 import com.delivery.system.ticketing.mappers.DeliveryMapper;
 import com.delivery.system.ticketing.pojos.external.NewDeliveryDto;
 import org.junit.jupiter.api.Test;
@@ -38,27 +39,42 @@ class DeliveryRepoTest {
 	}
 
 	@Test
-	void shouldGetNothingAfterLastModifiedTime() {
+	void shouldSuccessfullyGetDeliveriesThatNotDeliveredAndActualLate() {
+		var currentTime = utcTimeNow();
 		var delivery = DeliveryMapper.map(prepareValidDeliveryDTO());
-		delivery.setLastModified(utcTimeNow());
-		var saved = deliveryRepo.save(delivery);
+		delivery.setExpectedDeliveryTime(currentTime.minusMinutes(2));
+		var delivery2 = DeliveryMapper.map(prepareValidDeliveryDTO());
+		delivery2.setExpectedDeliveryTime(currentTime.minusMinutes(10));
+		var saved = deliveryRepo.saveAll(List.of(delivery, delivery2));
 
-		var afterIntervalData = deliveryRepo.findAllWithLastModifiedAfter(utcTimeNow().plusSeconds(2));
+		var afterIntervalData = deliveryRepo.findAllDeliveriesByNotStatusAndCurrentTimeIsMoreThanExpected(
+				DeliveryStatus.DELIEVERED, currentTime);
+
+		assertThat(afterIntervalData.size()).isEqualTo(saved.size());
+	}
+
+	@Test
+	void shouldSuccessfullyNotGetDeliveriesThatNotActualLateButNotDelivered() {
+		var delivery = DeliveryMapper.map(prepareValidDeliveryDTO());
+		var delivery2 = DeliveryMapper.map(prepareValidDeliveryDTO());
+		var saved = deliveryRepo.saveAll(List.of(delivery, delivery2));
+
+		var afterIntervalData = deliveryRepo.findAllDeliveriesByNotStatusAndCurrentTimeIsMoreThanExpected(
+				DeliveryStatus.DELIEVERED, utcTimeNow());
 
 		assertThat(afterIntervalData.size()).isZero();
 	}
 
 	@Test
-	void shouldSuccessfullyGetDeliveriesFromSpecificLastModified() {
+	void shouldSuccessfullyUpdateDelivery() {
 		var delivery = DeliveryMapper.map(prepareValidDeliveryDTO());
-		delivery.setLastModified(utcTimeNow());
-		var delivery2 = DeliveryMapper.map(prepareValidDeliveryDTO());
-		delivery2.setLastModified(utcTimeNow());
-		var saved = deliveryRepo.saveAll(List.of(delivery, delivery2));
+		var destinationDistance = 10;
+		delivery.setDestinationDistance(destinationDistance);
+		var saved = deliveryRepo.save(delivery);
 
-		var afterIntervalData = deliveryRepo.findAllWithLastModifiedAfter(utcTimeNow().minusSeconds(2));
+		var createdDelivery = deliveryRepo.findById(saved.getId()).get();
 
-		assertThat(afterIntervalData.size()).isEqualTo(saved.size());
+		assertThat(createdDelivery.getDestinationDistance()).isEqualTo(destinationDistance);
 	}
 
 	private NewDeliveryDto prepareValidDeliveryDTO() {

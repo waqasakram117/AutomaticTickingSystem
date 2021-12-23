@@ -50,7 +50,7 @@ class TicketControllerTest {
 	@Test
 	void whenValidRequestAndNoDataToReturnThenReturnsEmptyListData() throws Exception {
 
-		given(ticketService.getPriorityTickets())
+		given(ticketService.getAllOpenPriorityTickets())
 				.willAnswer(invocation -> emptyList());
 
 		var result = mockMvc.perform(get("/tickets")
@@ -68,7 +68,7 @@ class TicketControllerTest {
 	void whenValidRequestAndDataExistsToReturnThenReturnsListData() throws Exception {
 
 		var tickets = getTickets();
-		given(ticketService.getPriorityTickets()).willAnswer(invocation -> tickets);
+		given(ticketService.getAllOpenPriorityTickets()).willAnswer(invocation -> tickets);
 
 		var result = mockMvc.perform(get("/tickets")
 						.contentType(MediaType.APPLICATION_JSON))

@@ -1,12 +1,12 @@
 package com.delivery.system.scheduler.services;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.BDDMockito.given;
 
 import com.delivery.system.ticketing.entities.Delivery;
-import com.delivery.system.ticketing.enums.TicketPriority;
+import com.delivery.system.ticketing.enums.DeliveryStatus;
 import com.delivery.system.ticketing.mappers.DeliveryMapper;
 import com.delivery.system.ticketing.pojos.external.NewDeliveryDto;
 import com.delivery.system.ticketing.services.DeliveryService;
@@ -18,11 +18,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
 class TicketPrioritySchedulerTest {
@@ -39,25 +39,50 @@ class TicketPrioritySchedulerTest {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	void shouldSuccessfullySchedulePriority() {
-
-		var deliveries = prepareValidDeliveries(1, 11);
+	void shouldSuccessfullyCreateTicketAndScheduleHighPriority() {
 		var lateDeliveries = prepareValidDeliveries(11, 21)
 				.stream()
 				.peek(d -> d.setExpectedDeliveryTime(UtcDateTimeUtils.utcTimeNow().minusMinutes(10)))
 				.collect(Collectors.toUnmodifiableList());
 
-		var mixed = Stream.of(deliveries, lateDeliveries)
-				.flatMap(Collection::stream)
-				.collect(Collectors.toUnmodifiableList());
-
-		given(deliveryService.getAllUndeliveredDeliveries()).willReturn(mixed);
-		given(ticketService.updateTicketPriority(anyList(), any(TicketPriority.class)))
-				.willAnswer(invocation -> ( (List<Long>) invocation.getArgument(0) ).size());
+		given(deliveryService.getAllUndeliveredLateDeliveries()).willReturn(lateDeliveries);
+		given(ticketService.getAllOpenTicketsByDeliveries(anySet()))
+				.willAnswer(invocation -> Collections.emptyList());
+		given(ticketService.updateTicketsToHighPriority(anySet()))
+				.willAnswer(invocation -> ( (Set<Long>) invocation.getArgument(0) ).size());
+		given(ticketService.createTickets(anyList())).willAnswer(invocation -> invocation.getArgument(0));
+		given(ticketService.updateTicketsToHighPriority(anySet()))
+				.willAnswer(invocation -> ( (Set<Long>) invocation.getArgument(0) ).size());
 
 		var result = scheduler.prioritiesTickets();
 
 		assertThat(result).isEqualTo(10);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	void shouldSuccessfullyNotPrioritiesDeliveredDeliveries() {
+
+		var lateDeliveries = prepareValidDeliveries(11, 21)
+				.stream()
+				.peek(d -> {
+					d.setExpectedDeliveryTime(UtcDateTimeUtils.utcTimeNow().minusMinutes(10));
+					d.setDeliveryStatus(DeliveryStatus.DELIEVERED);
+				})
+				.collect(Collectors.toUnmodifiableList());
+
+		given(deliveryService.getAllUndeliveredLateDeliveries()).willReturn(Collections.emptyList());
+		given(ticketService.getAllOpenTicketsByDeliveries(anySet()))
+				.willAnswer(invocation -> Collections.emptyList());
+		given(ticketService.updateTicketsToHighPriority(anySet()))
+				.willAnswer(invocation -> ( (Set<Long>) invocation.getArgument(0) ).size());
+		given(ticketService.createTickets(anyList())).willAnswer(invocation -> invocation.getArgument(0));
+		given(ticketService.updateTicketsToHighPriority(anySet()))
+				.willAnswer(invocation -> ( (Set<Long>) invocation.getArgument(0) ).size());
+
+		var result = scheduler.prioritiesTickets();
+
+		assertThat(result).isZero();//because all are delivered
 	}
 
 

@@ -20,6 +20,6 @@ public class TicketController {
 
 	@GetMapping()
 	public List<RegisteredTicketData> getTickets() {
-		return ticketService.getPriorityTickets();
+		return ticketService.getAllOpenPriorityTickets();
 	}
 }

@@ -87,6 +87,7 @@ class DeliveryServiceTest {
 	@Test
 	void shouldSuccessfullyUpdateDelivery() {
 		var updateDto = prepareValidUpdateDeliveryDTO();
+		updateDto.setDeliveryStatus(DeliveryStatus.DELIEVERED.status);
 		var dto = prepareValidDeliveryDTO();
 		var delivery = DeliveryMapper.map(dto);
 		var lastModifiedTime = delivery.getLastModified();
@@ -97,8 +98,9 @@ class DeliveryServiceTest {
 		var updatedDelivery = deliveryService.updateDelivery(updateDto);
 
 		assertThat(lastModifiedTime).isNotEqualTo(updatedDelivery.lastModified);
-		assertThat(delivery.getDeliveryStatus()).isEqualTo(DeliveryStatus.PREPARING);
+		assertThat(delivery.getDeliveryStatus()).isEqualTo(DeliveryStatus.DELIEVERED);
 	}
+
 
 	@Test
 	void shouldSuccessfullyUpdateDeliveryAndCreateTicket() {

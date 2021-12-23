@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.delivery.system.ticketing.entities.Ticket;
 import com.delivery.system.ticketing.enums.CustomerType;
 import com.delivery.system.ticketing.enums.TicketPriority;
+import com.delivery.system.ticketing.enums.TicketStatus;
 import com.delivery.system.ticketing.mappers.DeliveryMapper;
 import com.delivery.system.ticketing.mappers.TicketMapper;
 import com.delivery.system.ticketing.pojos.external.NewDeliveryDto;
@@ -61,6 +62,19 @@ class TicketRepoTest {
 	}
 
 	@Test
+	void shouldUpdateTicketStatusByDeliveryId() {
+		var deliveryDto = prepareValidDeliveryDTO();
+		var delivery = deliveryRepo.save(DeliveryMapper.map(deliveryDto));
+		var ticket = TicketMapper.mapToNewTicket(delivery.getId(), TicketPriority.HIGH);
+		var savedTicket = ticketRepo.save(ticket);
+		savedTicket.setTicketStatus(TicketStatus.CLOSE);
+		savedTicket = ticketRepo.save(savedTicket);
+
+		assertThat(savedTicket).isNotNull();
+		assertThat(savedTicket.getTicketStatus()).isEqualTo(TicketStatus.CLOSE);
+	}
+
+	@Test
 	void shouldFailToCheckExistenceTicket() {
 		var exist = ticketRepo.existsTicketByDeliveryDbId(1L);
 		assertThat(exist).isFalse();
@@ -73,6 +87,18 @@ class TicketRepoTest {
 		var tickets = ticketRepo.findAll();
 		assertThat(tickets.size()).isEqualTo(1);
 		assertThat(exist).isTrue();
+	}
+
+	@Test
+	void shouldGetAllOpenTicketsByDeliveryIds() {
+		var count = 5;
+		var deliveryIds = IntStream.range(1, count + 1)
+				.mapToObj(i -> persistFreshTicket().getDeliveryDbId())
+				.collect(Collectors.toUnmodifiableSet());
+
+		var results = ticketRepo.getAllTicketsByDeliveryDbIdsAndStatus(deliveryIds, TicketStatus.OPEN);
+
+		assertThat(results.size()).isEqualTo(5);
 	}
 
 	@Test
@@ -89,7 +115,7 @@ class TicketRepoTest {
 				.mapToObj(i -> persistFreshTicket(TicketPriority.HIGH))
 				.collect(Collectors.toUnmodifiableList());
 
-		var tickets = ticketRepo.getPriorityTickets();
+		var tickets = ticketRepo.getPriorityTickets(TicketStatus.OPEN);
 
 		var subListHigh = tickets.subList(0, count); // (0, 5)
 		var high = subListHigh.stream().allMatch(t -> valueOf(t.getPriority()) == TicketPriority.HIGH);
@@ -122,9 +148,9 @@ class TicketRepoTest {
 		var deliverIds = list.subList(0, lowTicketsCount)
 				.stream()
 				.map(Ticket::getDeliveryDbId)
-				.collect(Collectors.toUnmodifiableList());
+				.collect(Collectors.toUnmodifiableSet());
 
-		var updatedCount = ticketRepo.updateTicketPriority(deliverIds, TicketPriority.LOW, utcTimeNow());
+		var updatedCount = ticketRepo.updateTicketPriorityWhereNotCurrentPriority(deliverIds, TicketPriority.HIGH, TicketPriority.LOW, utcTimeNow());
 
 		assertThat(lowTicketsCount).isEqualTo(updatedCount);
 	}

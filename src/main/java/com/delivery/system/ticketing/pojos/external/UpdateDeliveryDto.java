@@ -24,6 +24,9 @@ public class UpdateDeliveryDto {
 	@Max(value = Integer.MAX_VALUE, message = FOOD_PREPARATION_VALIDATION_ERROR)
 	private Integer foodPreparationTime;
 
+	@Min(value = 0, message = "Distance from Destination must be logical positive meters")
+	private Integer distanceFromDestination;
+
 	@ValidDeliveryStatus(isNullAllowed = true)
 	private String deliveryStatus;
 
@@ -49,6 +52,14 @@ public class UpdateDeliveryDto {
 
 	public void setFoodPreparationTime(Integer foodPreparationTime) {
 		this.foodPreparationTime = foodPreparationTime;
+	}
+
+	public Integer getDistanceFromDestination() {
+		return distanceFromDestination;
+	}
+
+	public void setDistanceFromDestination(Integer distanceFromDestination) {
+		this.distanceFromDestination = distanceFromDestination;
 	}
 
 	public String getDeliveryStatus() {

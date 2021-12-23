@@ -1,6 +1,7 @@
 package com.delivery.system.ticketing.services;
 
 import static com.delivery.system.ticketing.mappers.DeliveryMapper.mapToRegisteredData;
+import static com.delivery.system.utils.UtcDateTimeUtils.utcTimeNow;
 
 import com.delivery.system.exceptions.NotFoundException;
 import com.delivery.system.ticketing.entities.Delivery;
@@ -10,7 +11,6 @@ import com.delivery.system.ticketing.mappers.TicketPriorityMapper;
 import com.delivery.system.ticketing.pojos.external.UpdateDeliveryDto;
 import com.delivery.system.ticketing.pojos.internal.RegisteredDeliveryData;
 import com.delivery.system.ticketing.repos.DeliveryRepo;
-import com.delivery.system.utils.UtcDateTimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -42,8 +42,9 @@ public class DeliveryService {
 		var delivery = getDeliveryById(dto.getDeliveryId());
 		updateDeliveryStatus(delivery, dto.getDeliveryStatus());
 		updateFoodPreparationTime(delivery, dto.getFoodPreparationTime());
+		updateDistanceFromDestination(delivery, dto.getDistanceFromDestination());
 		analysisEstimationTime(delivery, dto);
-		delivery.setLastModified(UtcDateTimeUtils.utcTimeNow());
+		delivery.setLastModified(utcTimeNow());
 
 		var updatedDelivery = deliveryRepo.saveAndFlush(delivery);
 		log.info("Delivery ID: {} is updated", updatedDelivery.getId());
@@ -57,8 +58,9 @@ public class DeliveryService {
 		}
 	}
 
-	public List<Delivery> getAllUndeliveredDeliveries() {
-		return deliveryRepo.findAllDeliveriesByNotStatus(DeliveryStatus.DELIEVERED);
+	public List<Delivery> getAllUndeliveredLateDeliveries() {
+		return deliveryRepo.findAllDeliveriesByNotStatusAndCurrentTimeIsMoreThanExpected(
+				DeliveryStatus.DELIEVERED, utcTimeNow());
 	}
 
 
@@ -72,6 +74,12 @@ public class DeliveryService {
 	private void updateValidReachingTime(Delivery delivery, LocalDateTime reachingTime) {
 		if (reachingTime != null) {
 			delivery.setTimeToReachDestination(reachingTime);
+		}
+	}
+
+	private void updateDistanceFromDestination(Delivery delivery, Integer distance) {
+		if (distance != null) {
+			delivery.setDestinationDistance(distance);
 		}
 	}
 
@@ -95,7 +103,11 @@ public class DeliveryService {
 
 	private void updateDeliveryStatus(Delivery delivery, String status) {
 		if (status != null) {
-			delivery.setDeliveryStatus(DeliveryStatus.getByStatus(status));
+			var deliveryStatus = DeliveryStatus.getByStatus(status);
+			delivery.setDeliveryStatus(deliveryStatus);
+			if (deliveryStatus == DeliveryStatus.DELIEVERED) {
+				ticketService.closeTicket(delivery.getId());
+			}
 		}
 	}
 

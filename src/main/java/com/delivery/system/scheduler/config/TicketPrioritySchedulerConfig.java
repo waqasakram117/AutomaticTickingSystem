@@ -28,7 +28,8 @@ public class TicketPrioritySchedulerConfig {
 	public void scheduleTicketPrioritizingTask() {
 		var lastSyncTime = scheduler.getLastSyncTime();
 		log.info("Last sync time {}", lastSyncTime);
-		priorityScheduler.prioritiesTickets();
+		var totalTicketsPriorities = priorityScheduler.prioritiesTickets();
+		log.info("Total {} tickets priorities", totalTicketsPriorities);
 		scheduler.updateLastSyncTime(UtcDateTimeUtils.utcTimeNow());
 	}
 

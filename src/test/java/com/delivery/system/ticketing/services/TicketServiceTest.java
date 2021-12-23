@@ -3,11 +3,13 @@ package com.delivery.system.ticketing.services;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 import com.delivery.system.ticketing.entities.Ticket;
 import com.delivery.system.ticketing.enums.TicketPriority;
+import com.delivery.system.ticketing.enums.TicketStatus;
 import com.delivery.system.ticketing.mappers.TicketMapper;
 import com.delivery.system.ticketing.pojos.internal.RegisteredTicketData;
 import com.delivery.system.ticketing.repos.TicketRepo;
@@ -34,12 +36,12 @@ class TicketServiceTest {
 	void shouldSaveTicketSuccessfully() {
 		Ticket ticket = TicketMapper.mapToNewTicket(1L, TicketPriority.HIGH);
 
-		given(ticketRepo.save(ticket)).willReturn(ticket);
+		given(ticketRepo.saveAndFlush(ticket)).willReturn(ticket);
 		given(ticketRepo.existsTicketByDeliveryDbId(ticket.getDeliveryDbId())).willReturn(Boolean.FALSE);
 
 		var savedTicket = ticketService.createTicketIfNotExist(ticket);
 		assertThat(savedTicket).isNotNull();
-		verify(ticketRepo).save(any(Ticket.class));
+		verify(ticketRepo).saveAndFlush(any(Ticket.class));
 	}
 
 	@Test
@@ -57,12 +59,13 @@ class TicketServiceTest {
 		var tickets = getTickets()
 				.parallelStream()
 				.map(Ticket::getDeliveryDbId)
-				.collect(Collectors.toUnmodifiableList());
+				.collect(Collectors.toUnmodifiableSet());
 		var srcSize = tickets.size();
 
-		given(ticketRepo.updateTicketPriority(any(), any(TicketPriority.class), any(LocalDateTime.class))).willReturn(srcSize);
+		given(ticketRepo.updateTicketPriorityWhereNotCurrentPriority(anySet(), any(TicketPriority.class),
+				any(TicketPriority.class), any(LocalDateTime.class))).willReturn(srcSize);
 
-		var result = ticketService.updateTicketPriority(tickets, TicketPriority.LOW);
+		var result = ticketService.updateTicketsToHighPriority(tickets);
 		assertEquals(srcSize, result);
 	}
 
@@ -73,9 +76,9 @@ class TicketServiceTest {
 				.map(this::mapToData)
 				.collect(Collectors.toUnmodifiableList());
 
-		given(ticketRepo.getPriorityTickets()).willReturn(list);
+		given(ticketRepo.getPriorityTickets(TicketStatus.OPEN)).willReturn(list);
 
-		var tickets = ticketService.getPriorityTickets();
+		var tickets = ticketService.getAllOpenPriorityTickets();
 
 		assertEquals(list, tickets);
 	}

@@ -25,14 +25,15 @@ public interface TicketRepo extends JpaRepository<Ticket, Long> {
 	@Query("update Ticket ticket " +
 			" set ticket.priority =:priority, " +
 			" ticket.lastModified =:lastModifiedDate " +
-			" where ticket.deliveryDbId in :deliveryIds ")
+			" where ticket.deliveryDbId in :deliveryIds and ticket.priority <> :currentPriority")
 	@Transactional(propagation = Propagation.MANDATORY)
-	int updateTicketPriority(@Param("deliveryIds") Set<Long> deliveryIds,
-	                         @Param("priority") TicketPriority priority,
-	                         @Param("lastModifiedDate") LocalDateTime lastModifiedDate);
+	int updateTicketPriorityWhereNotCurrentPriority(@Param("deliveryIds") Set<Long> deliveryIds,
+	                                                @Param("currentPriority") TicketPriority currentPriority,
+	                                                @Param("priority") TicketPriority newPriority,
+	                                                @Param("lastModifiedDate") LocalDateTime lastModifiedDate);
 
-	@Query("select ticket from Ticket ticket order by ticket.priority asc, ticket.lastModified desc")
-	List<RegisteredTicketData> getPriorityTickets();
+	@Query("select ticket from Ticket ticket where ticket.ticketStatus =:ticketStatus order by ticket.priority asc, ticket.lastModified desc")
+	List<RegisteredTicketData> getPriorityTickets(@Param("ticketStatus") TicketStatus status);
 
 	@Query("select ticket from Ticket ticket " +
 			"where ticket.deliveryDbId in :deliveryIds" +
@@ -40,4 +41,10 @@ public interface TicketRepo extends JpaRepository<Ticket, Long> {
 	List<Ticket> getAllTicketsByDeliveryDbIdsAndStatus(@Param("deliveryIds") Set<Long> deliveryIds,
 	                                                   @Param("status") TicketStatus status);
 
+	@Modifying
+	@Query("update Ticket ticket" +
+			" set ticket.ticketStatus =:status" +
+			" where ticket.deliveryDbId =:deliveryId ")
+	@Transactional(propagation = Propagation.MANDATORY)
+	int updateTicketStatusByDeliveryId(@Param("deliveryId") Long deliveryId, @Param("status") TicketStatus status);
 }

@@ -1,6 +1,7 @@
 package com.delivery.system.ticketing.services;
 
 import static com.delivery.system.utils.UtcDateTimeUtils.utcTimeNow;
+import static java.util.Collections.emptyList;
 
 import com.delivery.system.ticketing.entities.Ticket;
 import com.delivery.system.ticketing.enums.TicketPriority;
@@ -14,8 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -30,20 +29,19 @@ public class TicketService {
 	}
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public int updateTicketPriority(Set<Long> deliveryIds, TicketPriority priority) {
+	public int updateTicketsToHighPriority(Set<Long> deliveryIds) {
 		if (deliveryIds.isEmpty()) return 0;
 
-
-		var results = repo.updateTicketPriority(deliveryIds, priority, utcTimeNow());
-		var logMsg = Arrays.toString(deliveryIds.toArray());
-		log.info("Total {} Tickets Priorities are updated: {}", results, logMsg);
+		var results = repo.updateTicketPriorityWhereNotCurrentPriority(deliveryIds,
+				TicketPriority.HIGH, TicketPriority.HIGH, utcTimeNow());
+		log.info("Total {} Tickets Priorities are updated", results);
 
 		return results;
 	}
 
-	public List<RegisteredTicketData> getPriorityTickets() {
+	public List<RegisteredTicketData> getAllOpenPriorityTickets() {
 
-		return repo.getPriorityTickets();
+		return repo.getPriorityTickets(TicketStatus.OPEN);
 	}
 
 	public List<Ticket> getAllOpenTicketsByDeliveries(Set<Long> deliveries) {
@@ -52,8 +50,12 @@ public class TicketService {
 	}
 
 	public List<Ticket> createTickets(List<Ticket> tickets) {
+		if (tickets.isEmpty()) return emptyList();
 
-		return tickets.isEmpty() ? Collections.emptyList() : repo.saveAllAndFlush(tickets);
+		var createdTickets = repo.saveAllAndFlush(tickets);
+		log.info("New Tickets {} are created", createdTickets.size());
+
+		return createdTickets;
 	}
 
 	@Nullable
@@ -68,5 +70,12 @@ public class TicketService {
 		log.info("New Ticket is generated ID: {} ", savedTicket.getDeliveryDbId());
 
 		return savedTicket;
+	}
+
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void closeTicket(Long deliveryId) {
+		var result = repo.updateTicketStatusByDeliveryId(deliveryId, TicketStatus.CLOSE);
+		log.info("Ticket Closed against delivery ID: {}, results {}", deliveryId, result);
+
 	}
 }

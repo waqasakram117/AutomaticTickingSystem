@@ -104,6 +104,26 @@ class UpdateDeliveryDtoTest {
 				.count());
 	}
 
+	@Test
+	void validationPassedForSettingDistanceFromDestinationZero() {
+		deliveryDto.setDistanceFromDestination(0);
+		var violations = validator.validate(deliveryDto);
+
+		assertTrue(violations.isEmpty());
+	}
+
+	@Test
+	void validationFailedForNegativeDistanceFromDestination() {
+		deliveryDto.setDistanceFromDestination(-1);
+		var violations = validator.validate(deliveryDto);
+
+		var errorMsg = "Distance from Destination must be logical positive meters";
+		assertEquals(1L, violations
+				.stream()
+				.filter(c -> c.getMessage().equals(errorMsg))
+				.count());
+	}
+
 	private UpdateDeliveryDto prepareValidUpdateDeliveryDTO() {
 		var now = UtcDateTimeUtils.utcTimeNow();
 		var dto = new UpdateDeliveryDto();

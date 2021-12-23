@@ -46,9 +46,6 @@ public class Delivery {
 	@Column(name = "time_to_reach_destination")
 	private LocalDateTime timeToReachDestination;
 
-	@Column(name = "ticket_created")
-	private Boolean ticketCreated = Boolean.FALSE;
-
 	@Column(name = "created_at", updatable = false, nullable = false)
 	private LocalDateTime createdAt;
 
@@ -139,11 +136,4 @@ public class Delivery {
 		this.timeToReachDestination = timeToReachDestination;
 	}
 
-	public Boolean getTicketCreated() {
-		return ticketCreated;
-	}
-
-	public void setTicketCreated(Boolean ticketCreated) {
-		this.ticketCreated = ticketCreated;
-	}
 }
