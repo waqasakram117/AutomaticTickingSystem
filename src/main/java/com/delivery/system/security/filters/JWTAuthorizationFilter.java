@@ -6,12 +6,13 @@ import static com.delivery.system.security.config.SecurityConstants.TOKEN_PREFIX
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import org.springframework.security.authentication.AuthenticationManager;
+import com.delivery.system.security.services.UserService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -21,10 +22,12 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
-public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
+public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
-	public JWTAuthorizationFilter(AuthenticationManager authManager) {
-		super(authManager);
+	private final UserService userService;
+
+	public JWTAuthorizationFilter(UserService userService) {
+		this.userService = userService;
 	}
 
 	@Override
@@ -38,14 +41,14 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 			return;
 		}
 
-		UsernamePasswordAuthenticationToken authentication = getAuthentication(req);
+		var authentication = getAuthentication(req);
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		chain.doFilter(req, res);
 	}
 
 	// Reads the JWT from the Authorization header, and then uses JWT to validate the token
-	private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
+	private Authentication getAuthentication(HttpServletRequest request) {
 		var token = request.getHeader(HEADER_STRING);
 
 		if (token != null) {
@@ -56,8 +59,10 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
 			var role = jwt.getClaim("role").asString();
 			var user = jwt.getSubject();
+
+
 			if (user != null) {
-				// new arraylist means authorities
+				userService.verifyUserExistsWithRoles(user, role);
 				return new UsernamePasswordAuthenticationToken(user, null, getAuthorities(role));
 			}
 

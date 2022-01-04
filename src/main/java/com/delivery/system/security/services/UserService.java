@@ -26,6 +26,11 @@ public class UserService {
 		return userRepository.findByUserName(username).orElseThrow(EntityNotFoundException::new);
 	}
 
+	public void verifyUserExistsWithRoles(String username, String roles){
+		var result = userRepository.existsByUserNameAndRole(username, roles);
+		if (!result) throw new EntityNotFoundException();
+	}
+
 	public void createUserIfNotExist(UserRequest userCreateRequest) {
 		Optional<UserEntity> byUsername = userRepository.findByUserName(userCreateRequest.getUserName());
 		if (byUsername.isEmpty()) {

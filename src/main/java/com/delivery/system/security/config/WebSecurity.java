@@ -5,6 +5,7 @@ import static com.delivery.system.security.config.SecurityConstants.SIGN_UP_URL;
 import com.delivery.system.security.filters.JWTAuthenticationFilter;
 import com.delivery.system.security.filters.JWTAuthorizationFilter;
 import com.delivery.system.security.services.AuthenticationUserDetailService;
+import com.delivery.system.security.services.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -13,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -22,10 +24,12 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
 	private final AuthenticationUserDetailService authUserService;
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
+	private final UserService userService;
 
-	public WebSecurity(AuthenticationUserDetailService authUserService, BCryptPasswordEncoder bCryptPasswordEncoder) {
+	public WebSecurity(AuthenticationUserDetailService authUserService, BCryptPasswordEncoder bCryptPasswordEncoder, UserService userService) {
 		this.authUserService = authUserService;
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+		this.userService = userService;
 	}
 
 	@Override
@@ -43,7 +47,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 				.anyRequest().authenticated()
 				.and()
 				.addFilter(new JWTAuthenticationFilter(authenticationManager()))
-				.addFilter(new JWTAuthorizationFilter(authenticationManager()))
+				.addFilterBefore(new JWTAuthorizationFilter(userService), UsernamePasswordAuthenticationFilter.class)
 				// this disables session creation on Spring Security
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 	}
